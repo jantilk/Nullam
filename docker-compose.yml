@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  dotnet-api:
+    container_name: dotnet-api
+    build:
+      context: backend
+      dockerfile: API/Dockerfile
+    ports:
+      - "8000:80"
+    depends_on:
+      - mssql-db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=localhost,1433;Database=nullam-db;User Id=sa;Password=Passw0rd1;TrustServerCertificate=True;
+    networks:
+      - internal
+
+  mssql-db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mssql-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Passw0rd1
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+    networks:
+      - internal
+
+  react-web:
+    container_name: react-web
+    build:
+      context: frontend/react-web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dotnet-api
+    networks:
+      - internal
+
+volumes:
+  sqlvolume:
+
+networks:
+  internal:
