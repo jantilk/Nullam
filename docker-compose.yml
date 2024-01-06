@@ -1,22 +1,23 @@
 version: '3.8'
 services:
-  dotnet-api:
-    container_name: dotnet-api
+  web-api:
+    container_name: web-api
     build:
       context: backend
       dockerfile: API/Dockerfile
     ports:
       - "8000:80"
     depends_on:
-      - mssql-db
+      - db-server
     environment:
-      - ConnectionStrings__DefaultConnection=Server=localhost,1433;Database=nullam-db;User Id=sa;Password=Passw0rd1;TrustServerCertificate=True;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db-server,1433;Database=nullam;User Id=sa;Password=Passw0rd1;TrustServerCertificate=True;
     networks:
       - internal
 
-  mssql-db:
+  db-server:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: mssql-db
+    container_name: db-server
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Passw0rd1
@@ -27,15 +28,15 @@ services:
     networks:
       - internal
 
-  react-web:
-    container_name: react-web
+  web-ui:
+    container_name: web-ui
     build:
       context: frontend/react-web
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:
-      - dotnet-api
+      - web-api
     networks:
       - internal
 
