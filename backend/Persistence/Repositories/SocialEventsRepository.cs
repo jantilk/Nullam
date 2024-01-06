@@ -45,4 +45,60 @@ public class SocialEventsRepository : ISocialEventsRepository
 
         return result;
     }
+
+    public async Task<SocialEvent?> GetById(Guid id)
+    {
+        var result = await _dbContext.SocialEvents.FirstOrDefaultAsync(e => e.Id == id);
+
+        return result;
+    }
+
+    public async Task<SocialEvent> Add(SocialEvent socialEvent)
+    {
+        var result = await _dbContext.SocialEvents.AddAsync(socialEvent);
+        await _dbContext.SaveChangesAsync();
+
+        return result.Entity;
+    }
+
+    public async Task<bool> Update(SocialEvent socialEvent)
+    {
+        _dbContext.SocialEvents.Update(socialEvent);
+
+        try
+        {
+            var result = await _dbContext.SaveChangesAsync();
+            
+            if (result < 0)
+            {
+                // TODO: better error text?
+                throw new DbUpdateException("Update operation failed!");
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
+
+    public async Task<bool> Delete(SocialEvent socialEvent)
+    {
+        _dbContext.SocialEvents.Remove(socialEvent);
+
+        try
+        {
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            // TODO: better error handling
+            // TODO: check elsewhere also
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
 }

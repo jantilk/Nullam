@@ -1,4 +1,5 @@
 using Application.DTOs;
+using Application.DTOs.Requests;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,5 +19,30 @@ public class SocialEventsController : NullamControllerBase
     public async Task<IActionResult> Get([FromQuery] SortingOption? orderBy, [FromQuery] FilterDto? filter)
     {
         return HandleOperationResult(await _socialEventsService.Get(orderBy, filter));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    {
+        return HandleOperationResult(await _socialEventsService.GetById(id));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] AddSocialEventRequest request)
+    {
+        return HandleOperationResult(await _socialEventsService.Add(request));
+    }
+    
+    // TODO: why ef db commands run every time, ok?
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateSocialEventRequest request)
+    {
+        return HandleOperationResult(await _socialEventsService.Update(id, request));
+    }
+    
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        return HandleOperationResult(await _socialEventsService.Delete(id));
     }
 }
