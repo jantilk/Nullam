@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:500');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:700');
+@import "variables";
+
+
+.navbar-nav .nav-link {
+  font-size: $font-size-base * .75;
+}
+
+//@include media-breakpoint-down(sm) {
+//  body {
+//    font-size: 4rem;
+//  }
+//
+//  .navbar-nav .nav-link {
+//    &.text-sm {
+//      font-size: 0.8rem;
+//    }
+//  }
+//}
+
+@include media-breakpoint-down(md) {
+  .navbar-nav .nav-link {
+    height: 32px !important;
+  }
+
+  .navbar {
+    padding: 8px;
+  }
+
+  .navbar-brand, .navbar-brand.img {
+    height: 48px;
+  }
+}
+
+.navbar-nav {
+  .nav-link {
+    height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

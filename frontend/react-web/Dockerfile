@@ -7,6 +7,7 @@ WORKDIR /react-web
 COPY package*.json ./
 
 # Install dependencies
+# TODO: change to yarn everywhere ?
 RUN npm install --frozen-lockfile
 
 # Copy the rest of the code
