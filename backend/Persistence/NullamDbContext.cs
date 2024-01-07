@@ -29,7 +29,56 @@ public class NullamDbContext : DbContext
     
     public static void Initialize(NullamDbContext context)
     {
-        // TODO
-        // Add initial data
+        // Ensure database is created
+        context.Database.EnsureCreated();
+
+        // Check if the database already has social events
+        if (!context.SocialEvents.Any())
+        {
+            var locationsInEstonia = new[] { "Tallinn", "Tartu", "P?rnu", "Narva", "Kohtla-J?rve", "Viljandi", "Rakvere", "Maardu", "Sillam?e", "Kuressaare" };
+            var additionalInfos = new[] { "?ritus vabas ?hus", null, "Siseruumides toimuv ?ritus", null, null, "V?imalus osaleda t??tubades", null, null, null, "Muusikaline etteaste" };
+            var rnd = new Random();
+
+            // Future Events
+            var futureEvents = new SocialEvent[]
+            {
+                new()  { Name = "Aenean commodo", Date = RandomFutureDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Fusce ex dui, finibus eu luctus vel", Date = RandomFutureDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Nunc lobortis metus eu massa viverra ultri", Date = RandomFutureDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Integer nec nulla vitae", Date = RandomFutureDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] }
+            };
+
+            // Past Events
+            var pastEvents = new SocialEvent[]
+            {
+                new() { Name = "Aenean commodo", Date = RandomPastDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Fusce ex dui, finibus eu luctus vel", Date = RandomPastDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Nunc lobortis metus eu massa viverra ultri", Date = RandomPastDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Integer nec nulla vitae", Date = RandomPastDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] },
+                new() { Name = "Praesent molestie dapibus lorem", Date = RandomPastDateGenerator(), Location = locationsInEstonia[rnd.Next(locationsInEstonia.Length)], Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, AdditionalInfo = additionalInfos[rnd.Next(additionalInfos.Length)] }
+            };
+
+            // Add future and past events to the context
+            foreach (var sEvent in futureEvents.Concat(pastEvents))
+            {
+                context.SocialEvents.Add(sEvent);
+            }
+
+            context.SaveChanges();
+        }
+    }
+
+    private static DateTime RandomFutureDateGenerator()
+    {
+        var rnd = new Random();
+        var futureDate = DateTime.Now.AddDays(rnd.Next(1, 365)); // Random future date within the next year
+        return futureDate;
+    }
+
+    private static DateTime RandomPastDateGenerator()
+    {
+        var rnd = new Random();
+        var pastDate = DateTime.Now.AddDays(-rnd.Next(1, 365)); // Random past date within the last year
+        return pastDate;
     }
 }

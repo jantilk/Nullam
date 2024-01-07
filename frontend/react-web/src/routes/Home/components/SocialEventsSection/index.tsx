@@ -79,6 +79,7 @@ export default function SocialEventsSection() {
                   <tr key={x.id}>
                     <th scope={"row"} className={"px-0"}>{index + 1}.</th>
                     <td>{x.name}</td>
+                    {/*TODO: fix formatting*/}
                     <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
                     <td className={"col-3"}>
                       <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}`}>OSAVÕTJAD</NavLink>
