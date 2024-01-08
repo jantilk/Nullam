@@ -5,13 +5,15 @@ import {
   CardHeader,
   CardFooter,
   Table,
-  CardBody
+  CardBody,
+  Modal,
+  Button
 } from 'react-bootstrap';
 import {useQuery} from "@tanstack/react-query";
 import socialEventsApi, {SortingOption} from "../../../../api/socialEventsApi.ts";
-import { NavLink } from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import queryKeys from "../../../../api/QueryKeys.ts";
-import {ReactNode} from "react";
+import {ReactNode, useState} from "react";
 import RemoveIcon from '/public/remove.svg?react'
 
 interface AppCardProps {
@@ -19,7 +21,12 @@ interface AppCardProps {
   title: string;
 }
 
-const SocialEventCard = ({children, title} : AppCardProps) => {
+interface CurrentEvent {
+  id: string | null;
+  name: string;
+}
+
+const SocialEventCard = ({children, title}: AppCardProps) => {
   return (
     <Card className={"shadow-sm"} style={{height: '320px'}}>
       <CardHeader className="text-white bg-primary">
@@ -30,43 +37,65 @@ const SocialEventCard = ({children, title} : AppCardProps) => {
   );
 }
 
-const AppButton = () => {
-  return (
-    // TODO: move inline style
-    <RemoveIcon
-      color="#7E7E7E"
-      style={{height: '18px'}}
-      className={"d-flex icon-hover custom-icon"}
-      type={"button"}
-      onClick={() => {}}
-    />
-  );
-}
-
 export default function SocialEventsSection() {
-  const { data: futureSocialEvents, error: futureError } = useQuery({
+  const [showModal, setShowModal] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState<CurrentEvent>({id: null, name: ""});
+
+  const handleDelete = async () => {
+    if (currentEvent.id) {
+      try {
+        await socialEventsApi.delete(currentEvent.id);
+      } catch (error) {
+        console.error('Delete operation failed:', error);
+      }
+    }
+  };
+
+  const openModal = (eventId: string, eventName: string) => {
+    setCurrentEvent({id: eventId, name: eventName});
+    setShowModal(true);
+  };
+
+  const ConfirmationModal = () => (
+    <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Kustuta "<strong>{currentEvent.name}</strong>"</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Oled kindel, et soovid üritust kustutada?</Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowModal(false)}>
+          Tühista
+        </Button>
+        <Button variant="danger" onClick={handleDelete}>
+          Kustuta
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+
+  const {data: futureSocialEvents, error: futureError} = useQuery({
     queryKey: [queryKeys.FUTURE_SOCIAL_EVENTS],
     queryFn: () => {
       const today = new Date();
-      const filter = { StartDate: today };
+      const filter = {StartDate: today};
       const orderBy = SortingOption.DateAsc;
       return socialEventsApi.get({orderBy, filter});
     }
   });
 
-  const { data: pastSocialEvents, error: pastError } = useQuery({
+  const {data: pastSocialEvents, error: pastError} = useQuery({
     queryKey: [queryKeys.PAST_SOCIAL_EVENTS],
     queryFn: () => {
       const today = new Date();
-      const filter = { EndDate: today };
+      const filter = {EndDate: today};
       const orderBy = SortingOption.DateDesc;
       return socialEventsApi.get({orderBy, filter});
     }
   });
 
-  if (futureError || pastError) {
-    return <div>Error: {futureError?.message || pastError?.message}</div>;
-  }
+  // if (futureError || pastError) {
+  //   return <div>Error: {futureError?.message || pastError?.message}</div>;
+  // }
 
   return (
     <Row>
@@ -75,20 +104,26 @@ export default function SocialEventsSection() {
           <CardBody>
             <Table borderless>
               <tbody>
-                {futureSocialEvents && futureSocialEvents.map((x, index) => (
-                  <tr key={x.id}>
-                    <th scope={"row"} className={"px-0"}>{index + 1}.</th>
-                    <td>{x.name}</td>
-                    {/*TODO: fix formatting*/}
-                    <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
-                    <td className={"col-3"}>
-                      <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}`}>OSAVÕTJAD</NavLink>
-                    </td>
-                    <td className={"col-1"}>
-                      <AppButton/>
-                    </td>
-                  </tr>
-                ))}
+              {futureSocialEvents && futureSocialEvents.map((x, index) => (
+                <tr key={x.id}>
+                  <th scope={"row"} className={"px-0"}>{index + 1}.</th>
+                  <td>{x.name}</td>
+                  {/*TODO: fix formatting*/}
+                  <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
+                  <td className={"col-3"}>
+                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}`}>OSAVÕTJAD</NavLink>
+                  </td>
+                  <td className={"col-1"}>
+                    <RemoveIcon
+                      color="#7E7E7E"
+                      style={{height: '18px'}}
+                      className={"d-flex icon-hover custom-icon"}
+                      type={"button"}
+                      onClick={() => openModal(x.id, x.name)}
+                    />
+                  </td>
+                </tr>
+              ))}
               </tbody>
             </Table>
           </CardBody>
@@ -117,6 +152,7 @@ export default function SocialEventsSection() {
           </CardBody>
         </SocialEventCard>
       </Col>
+      <ConfirmationModal/>
     </Row>
   );
 }

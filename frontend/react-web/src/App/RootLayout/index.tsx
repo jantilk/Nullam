@@ -9,7 +9,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({children}: RootLayoutProps) {
   return(
-    <Container>
+    <Container className={"pt-4"}>
       <Stack gap={4}>
         <AppNavbar/>
         {children}

@@ -9,7 +9,6 @@ export default function App() {
     <Router>
       <RootLayout>
         <Routes>
-          {/*TODO: change paths to Estonian? Maybe not...*/}
           <Route path="/" element={<Home/>}/>
           <Route path="/add-social-event" element={<AddSocialEvent/>}/>
         </Routes>

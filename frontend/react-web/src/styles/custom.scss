@@ -3,7 +3,13 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400');
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:500');
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:700');
+@import "react-datepicker/dist/react-datepicker.css";
 @import "variables";
+
+.invalid-feedback {
+  display: block !important; /* Override any conflicting styles */
+  color: red; /* Customize the error message style */
+}
 
 body {
   background-color: #eef2f5;
@@ -52,19 +58,19 @@ body {
 
 .card {
   font-size: $font-size-base * .75;
-  
+
   &-header {
     display: flex;
     height: $spacer * 4;
     align-items: center;
     justify-content: center;
   }
-  
+
   &-body {
     padding-top: $spacer * .5;
     overflow-y: auto;
   }
-  
+
   &-footer {
     background-color: $white !important;
     padding-bottom: $spacer;
@@ -82,4 +88,12 @@ body {
       text-decoration: underline;
     }
   }
+}
+
+h1 {
+  font-weight: $font-weight-light;
+}
+
+.btn.btn-secondary {
+  background-color: $gray-300 !important;
 }
