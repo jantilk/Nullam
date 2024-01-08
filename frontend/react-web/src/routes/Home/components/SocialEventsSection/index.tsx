@@ -15,6 +15,7 @@ import {NavLink} from "react-router-dom";
 import queryKeys from "../../../../api/QueryKeys.ts";
 import {ReactNode, useState} from "react";
 import RemoveIcon from '/public/remove.svg?react'
+import {toast} from "sonner";
 
 interface AppCardProps {
   children?: ReactNode;
@@ -45,8 +46,11 @@ export default function SocialEventsSection() {
     if (currentEvent.id) {
       try {
         await socialEventsApi.delete(currentEvent.id);
+        toast.success("üritus kustutatud");
+        setShowModal(false);
       } catch (error) {
         console.error('Delete operation failed:', error);
+        toast.error("ürituse kustutamine ebaõnnestus");
       }
     }
   };
@@ -93,9 +97,9 @@ export default function SocialEventsSection() {
     }
   });
 
-  // if (futureError || pastError) {
-  //   return <div>Error: {futureError?.message || pastError?.message}</div>;
-  // }
+  if (futureError || pastError) {
+    toast.error("Server error");
+  }
 
   return (
     <Row>
