@@ -115,7 +115,9 @@ export default function SocialEventsSection() {
                   {/*TODO: fix formatting*/}
                   <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
                   <td className={"col-3"}>
-                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}`}>OSAVÕTJAD</NavLink>
+                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`}>
+                      OSAVÕTJAD
+                    </NavLink>
                   </td>
                   <td className={"col-1"}>
                     <RemoveIcon
@@ -132,7 +134,7 @@ export default function SocialEventsSection() {
             </Table>
           </CardBody>
           <CardFooter className={"d-flex justify-content-start bg-light"}>
-            <NavLink className={"nav nav-link p-0"} to={"add-social-event"}>LISA ÜRITUS</NavLink>
+            <NavLink className={"nav nav-link p-0"} to={"add-social-events"}>LISA ÜRITUS</NavLink>
           </CardFooter>
         </SocialEventCard>
       </Col>

@@ -1,5 +1,6 @@
 export type SocialEvent = {
-    id: string,
-    name: string,
-    date: Date
+  id: string,
+  name: string,
+  date: Date,
+  location: string
 }

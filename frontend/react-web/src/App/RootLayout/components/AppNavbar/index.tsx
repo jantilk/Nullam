@@ -13,7 +13,7 @@ const SymbolImage = () => {
 }
 
 export default function AppNavbar() {
-  return(
+  return (
     <Navbar expand={"md"} bg="light" className={"shadow-sm"}>
       <Navbar.Brand className={"col-lg-6 d-flex px-md-4"} href="/">
         <div className={"d-block d-md-none pe-3"}><SymbolImage/></div>
@@ -30,7 +30,7 @@ export default function AppNavbar() {
             <NavLink to="/" className="nav-link">AVALEHT</NavLink>
           </Nav.Item>
           <Nav.Item>
-            <NavLink to="/add-social-event" className="nav-link">ÜRITUSE LISAMINE</NavLink>
+            <NavLink to="/add-social-events" className="nav-link">ÜRITUSE LISAMINE</NavLink>
           </Nav.Item>
         </Nav>
       </Navbar.Collapse>

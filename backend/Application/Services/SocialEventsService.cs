@@ -55,7 +55,7 @@ public class SocialEventsService : ISocialEventsService
                 Id = socialEvent.Id,
                 Name = socialEvent.Name,
                 Date = socialEvent.Date,
-                Place = socialEvent.Location
+                Location = socialEvent.Location
             };
             
             return OperationResult<GetSocialEventByIdResponse>.Success(response);
@@ -87,7 +87,7 @@ public class SocialEventsService : ISocialEventsService
             {
                 Id = result.Id,
                 Date = result.Date,
-                Place = result.Location,
+                Location = result.Location,
                 AdditionalInfo = result.AdditionalInfo
             };
             
