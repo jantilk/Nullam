@@ -39,6 +39,17 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
         return result;
     }
 
+    public async Task<SocialEventCompany?> GetByCompanyId(Guid socialEventId, Guid companyId)
+    {
+        var result = await _dbContext.SocialEventCompanies
+            .Include(x => x.Company)
+            .Where(x => x.SocialEventId == socialEventId)
+            .Where(x => x.CompanyId == companyId)
+            .FirstOrDefaultAsync();
+
+        return result;
+    }
+    
     public async Task<SocialEventCompany?> GetSocialEventCompany(Guid socialEventId, Guid companyId)
     {
         var result = await _dbContext.SocialEventCompanies
@@ -53,7 +64,7 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
 
     public async Task<bool> Update(SocialEventCompany updatedSocialEventCompany)
     {
-        _dbContext.Update(updatedSocialEventCompany);
+        _dbContext.SocialEventCompanies.Update(updatedSocialEventCompany);
         
         try
         {

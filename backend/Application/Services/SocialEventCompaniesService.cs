@@ -47,6 +47,41 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
             return OperationResult<List<GetCompaniesBySocialEventIdResponse>>.FailureWithLog($"Failed to get social event companies! {ex.Message}");
         }
     }
+    
+    public async Task<OperationResult<GetSocialEventCompanyResponse>?> GetByCompanyId(Guid socialEventId, Guid companyId)
+    {
+        try
+        {
+            var socialEventCompany = await _socialEventCompaniesRepository.GetByCompanyId(socialEventId, companyId);
+            if (socialEventCompany == null)
+            {
+                return null;
+            }
+
+            var response = new GetSocialEventCompanyResponse
+            {
+                SocialEventId = socialEventCompany.SocialEventId,
+                CompanyId = socialEventCompany.CompanyId,
+                NumberOfParticipants = socialEventCompany.NumberOfParticipants,
+                CreatedAt = socialEventCompany.CreatedAt,
+                PaymentType = socialEventCompany.PaymentType,
+                AdditionalInfo = socialEventCompany.AdditionalInfo,
+                Company = new CompanyResponse
+                {
+                    Id = socialEventCompany.Company.Id,
+                    CreatedAt = socialEventCompany.Company.CreatedAt,
+                    Name = socialEventCompany.Company.Name,
+                    RegisterCode = socialEventCompany.Company.RegisterCode
+                },
+            };
+            
+            return OperationResult<GetSocialEventCompanyResponse>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<GetSocialEventCompanyResponse>.Failure($"Failed to add social event company! {ex}");
+        }
+    }
 
     public async Task<OperationResult<bool>> Add(Guid socialEventId, AddSocialEventCompanyRequest request)
     {
@@ -94,17 +129,16 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
                 return OperationResult<bool>.Failure("Company not found");
             }
 
-            var updatedSocialEventCompany = new SocialEventCompany
-            {
-                SocialEventId = socialEventCompany.SocialEventId,
-                CompanyId = socialEventCompany.CompanyId,
-                CreatedAt = socialEventCompany.CreatedAt,
-                PaymentType = request.PaymentType,
-                AdditionalInfo = request.AdditionalInfo,
-                NumberOfParticipants = request.NumberOfParticipants,
-            };
+            company.Name = request.Name;
+            company.RegisterCode = request.RegisterCode;
             
-            await _socialEventCompaniesRepository.Update(updatedSocialEventCompany);
+            await _companyRepository.Update(company);
+
+            socialEventCompany.PaymentType = request.PaymentType;
+            socialEventCompany.NumberOfParticipants = request.NumberOfParticipants;
+            socialEventCompany.AdditionalInfo = request.AdditionalInfo;
+            
+            await _socialEventCompaniesRepository.Update(socialEventCompany);
 
             await _transactionService.CommitTransactionAsync();
             return OperationResult<bool>.Success(true);

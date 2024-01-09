@@ -22,4 +22,25 @@ public class CompanyRepository : ICompanyRepository
     {
         return await _dbContext.Companies.FirstOrDefaultAsync(x => x.Id == companyId);
     }
+
+    public async Task<bool> Update(Company updatedCompany)
+    {
+        _dbContext.Companies.Update(updatedCompany);
+        
+        try
+        {
+            var result = await _dbContext.SaveChangesAsync();
+            if (result < 0)
+            {
+                throw new DbUpdateException("Update operation failed!");
+            }
+            
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
 }

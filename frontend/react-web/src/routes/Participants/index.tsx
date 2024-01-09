@@ -4,39 +4,46 @@ import {useQuery} from "@tanstack/react-query";
 import socialEventsApi from "../../api/socialEventsApi.ts";
 import {toast} from "sonner";
 import queryKeys from "../../api/QueryKeys.ts";
-import {useLoader} from "../../contexts/LoaderContext.tsx";
 import AddParticipants from "./components/AddParticipants";
 import {format} from "date-fns";
 import socialEventCompaniesApi from "../../api/socialEventCompaniesApi.ts";
+import {AxiosError, HttpStatusCode} from "axios";
 
 export default function Participants() {
   const {eventId} = useParams();
-  const {setLoading} = useLoader();
+  // const {setLoading} = useLoader();
 
-  const {data: socialEvent, error: getSocialEventError, isLoading: isLoading} = useQuery({
-    queryKey: [queryKeys.SOCIAL_EVENT],
+  const {data: socialEvent, error: getSocialEventError} = useQuery({
+    queryKey: [queryKeys.SOCIAL_EVENT, eventId],
     queryFn: () => {
       return socialEventsApi.getById(eventId)
     },
     enabled: !!eventId
   });
 
-  const {data: companies, error: getCompaniesError} = useQuery({
-    queryKey: [queryKeys.COMPANIES_BY_SOCIAL_EVENT_ID],
+  const {data: companies, error: getCompaniesError, isLoading} = useQuery({
+    queryKey: [queryKeys.COMPANIES_BY_SOCIAL_EVENT_ID, socialEvent?.id],
     queryFn: () => {
-      if (!socialEvent?.id) {
-        return;
+      const id = socialEvent?.id;
+      if (typeof id === 'string') {
+        return socialEventCompaniesApi.getBySocialEventId(id);
+      } else {
+        throw new Error("Social event ID is undefined");
       }
-
-      return socialEventCompaniesApi.getBySocialEventId(socialEvent?.id)
-    }
+    },
+    enabled: !!socialEvent?.id,
+    refetchOnMount: "always",
+    staleTime: 0
   });
 
   if (getSocialEventError || getCompaniesError) {
-    toast.error("Midagi läks valesti");
-  }
+    const axiosError = getCompaniesError as AxiosError;
 
-  setLoading(isLoading);
+    const isError = axiosError && axiosError.response?.status !== HttpStatusCode.NotFound;
+    if (isError) {
+      toast.error("Midagi läks valesti");
+    }
+  }
 
   return (
     <Container className={"shadow-sm bg-white"}>
@@ -75,24 +82,27 @@ export default function Participants() {
                     <Row>
                       <Col sm={24} md={8}>Osavõtjad:</Col>
                     </Row>
-                    <Row>
-                      <Col md={{span: 16, offset: 8}}>
-                        <Table borderless>
-                          <tbody>
-                          {companies?.data.map((x, index) => (
-                            <tr key={x.id}>
-                              <th scope={"row"} className={"text-end px-0"}>{index + 1}.</th>
-                              <td>{x.name}</td>
-                              <td className={"col-4"}>{x.registerCode}</td>
-                              <td className={"col-3"}>
-                                <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}`}>VAATA</NavLink>
-                              </td>
-                            </tr>
-                          ))}
-                          </tbody>
-                        </Table>
-                      </Col>
-                    </Row>
+                    {!isLoading && (
+                      <Row>
+                        <Col md={{span: 16, offset: 8}}>
+                          <Table borderless>
+                            <tbody>
+                            {companies?.data.map((x, index) => (
+                              <tr key={x.id}>
+                                <th scope={"row"} className={"text-end px-0"}>{index + 1}.</th>
+                                <td>{x.name}</td>
+                                <td className={"col-4"}>{x.registerCode}</td>
+                                <td className={"col-3"}>
+                                  <NavLink className={"nav nav-link p-0"}
+                                           to={`/social-events/${socialEvent?.id}/participants/companies/${x.id}`}>VAATA</NavLink>
+                                </td>
+                              </tr>
+                            ))}
+                            </tbody>
+                          </Table>
+                        </Col>
+                      </Row>
+                    )}
                     <AddParticipants socialEvent={socialEvent}/>
                   </Col>
                 </Row>

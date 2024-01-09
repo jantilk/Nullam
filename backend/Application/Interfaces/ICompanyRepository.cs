@@ -6,4 +6,5 @@ public interface ICompanyRepository
 {
     Task Add(Company company);
     Task<Company?> Get(Guid companyId);
+    Task<bool> Update(Company updatedCompany);
 }

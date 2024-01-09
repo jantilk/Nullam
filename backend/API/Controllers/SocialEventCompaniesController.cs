@@ -19,6 +19,12 @@ public class SocialEventCompaniesController : NullamControllerBase
     {
         return HandleOperationResult(await _socialEventCompaniesService.GetCompaniesBySocialEventId(socialEventId));
     }
+
+    [HttpGet("{companyId}")]
+    public async Task<IActionResult> GetByCompanyId([FromRoute] Guid socialEventId, [FromRoute] Guid companyId)
+    {
+        return HandleOperationResult(await _socialEventCompaniesService.GetByCompanyId(socialEventId, companyId));
+    }
     
     [HttpPost]
     public async Task<IActionResult> Add([FromRoute] Guid socialEventId, AddSocialEventCompanyRequest request)
