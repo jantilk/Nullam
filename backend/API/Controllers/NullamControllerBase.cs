@@ -9,7 +9,7 @@ public class NullamControllerBase : ControllerBase
     protected IActionResult HandleOperationResult<T>(OperationResult<T>? result)
     {
         if (result == null) {
-            return NotFound(new { error = "Resource not found", success = false });
+            return NotFound(new { error = "Resource not found", success = true });
         }
         
         if (!result.IsSuccess) {

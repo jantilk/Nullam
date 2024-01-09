@@ -14,6 +14,12 @@ public class SocialEventCompaniesController : NullamControllerBase
         _socialEventCompaniesService = socialEventCompaniesService;
     }
     
+    [HttpPost]
+    public async Task<IActionResult> Add([FromRoute] Guid socialEventId, AddSocialEventCompanyRequest request)
+    {
+        return HandleOperationResult(await _socialEventCompaniesService.Add(socialEventId, request));
+    }
+    
     [HttpGet]
     public async Task<IActionResult> GetCompaniesBySocialEventId([FromRoute] Guid socialEventId)
     {
@@ -25,16 +31,16 @@ public class SocialEventCompaniesController : NullamControllerBase
     {
         return HandleOperationResult(await _socialEventCompaniesService.GetByCompanyId(socialEventId, companyId));
     }
-    
-    [HttpPost]
-    public async Task<IActionResult> Add([FromRoute] Guid socialEventId, AddSocialEventCompanyRequest request)
-    {
-        return HandleOperationResult(await _socialEventCompaniesService.Add(socialEventId, request));
-    }
 
     [HttpPut("{companyId:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid socialEventId, [FromRoute] Guid companyId, UpdateSocialEventCompanyRequest request)
     {
         return HandleOperationResult(await _socialEventCompaniesService.Update(socialEventId, companyId, request));
+    }
+    
+    [HttpDelete("{personId:guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid socialEventId, [FromRoute] Guid companyId)
+    {
+        return HandleOperationResult(await _socialEventCompaniesService.Delete(socialEventId, companyId));
     }
 }

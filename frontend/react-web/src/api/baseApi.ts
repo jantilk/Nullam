@@ -14,8 +14,17 @@ export enum PaymentType {
 
 export type GetCompaniesBySocialEventIdResponse = {
   id: string;
+  createdAt: Date;
   name: string;
   registerCode: string;
+};
+
+export type GetPersonsBySocialEventIdResponse = {
+  id: string;
+  createdAt: Date;
+  firstName: string;
+  lastName: string;
+  idCode: string;
 };
 
 const apiUrl = 'https://localhost:7168';

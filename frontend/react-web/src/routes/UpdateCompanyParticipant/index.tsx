@@ -1,7 +1,7 @@
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
-import socialEventCompaniesApi, {AddSocialEventCompanyRequest, PaymentType, UpdateSocialEventCompanyRequest} from "../../api/socialEventCompaniesApi.ts";
+import socialEventCompaniesApi, {AddSocialEventCompanyRequest, UpdateSocialEventCompanyRequest} from "../../api/socialEventCompaniesApi.ts";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import queryKeys from "../../api/QueryKeys.ts";
 import {useEffect} from "react";
@@ -12,7 +12,6 @@ export default function UpdateCompanyParticipant() {
   const navigate = useNavigate();
   const {eventId, companyId} = useParams();
   const queryClient = useQueryClient();
-
 
   const {data: companyData, isLoading} = useQuery({
     queryKey: [queryKeys.GET_COMPANY_BY_ID, eventId, companyId],
@@ -40,9 +39,9 @@ export default function UpdateCompanyParticipant() {
     mutationFn: ({eventId, companyId, formData}: { eventId: string, companyId: string, formData: UpdateSocialEventCompanyRequest }) => {
       return socialEventCompaniesApi.update(eventId, companyId, formData);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       navigate(`/social-events/${eventId}/participants`);
-      queryClient.invalidateQueries([queryKeys.GET_COMPANY_BY_ID, eventId, companyId] as InvalidateQueryFilters);
+      await queryClient.invalidateQueries([queryKeys.GET_COMPANY_BY_ID, eventId, companyId] as InvalidateQueryFilters);
       toast.success('Salvestamine õnnestus');
     },
     onError: () => {

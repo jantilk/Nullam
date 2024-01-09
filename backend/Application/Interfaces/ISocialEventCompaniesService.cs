@@ -10,4 +10,5 @@ public interface ISocialEventCompaniesService
     Task<OperationResult<GetSocialEventCompanyResponse>?> GetByCompanyId(Guid socialEventId, Guid companyId);
     Task<OperationResult<bool>> Add(Guid socialEventId, AddSocialEventCompanyRequest request);
     Task<OperationResult<bool>> Update(Guid socialEventId, Guid companyId, UpdateSocialEventCompanyRequest request);
+    Task<OperationResult<bool>> Delete(Guid socialEventId, Guid companyId);
 }

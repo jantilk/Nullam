@@ -1,0 +1,20 @@
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+$custom-grid-breakpoints: (
+  xs: 0,
+  xsm: 440px,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+$grid-breakpoints: map-merge($custom-grid-breakpoints, $grid-breakpoints);

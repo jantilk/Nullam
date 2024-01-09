@@ -7,8 +7,8 @@
 @import "variables";
 
 .invalid-feedback {
-  display: block !important; /* Override any conflicting styles */
-  color: red; /* Customize the error message style */
+  display: block !important;
+  color: $danger;
 }
 
 body {
@@ -21,11 +21,7 @@ body {
 }
 
 .icon-hover:hover {
-  color: red; /* Set the desired hover color */
-}
-
-.navbar-nav .nav-link {
-  font-size: $font-size-base * .75;
+  color: $danger;
 }
 
 //@include media-breakpoint-down(sm) {
@@ -56,6 +52,21 @@ body {
   }
 }
 
+.table {
+  font-size: $font-size-base * .75;
+
+  &.participants-table {
+    .table-col-min-width {
+      width: 1%;
+      max-width: min-content;
+    }
+
+    @include media-breakpoint-up(xl) {
+      width: 150%;
+    }
+  }
+}
+
 .card {
   font-size: $font-size-base * .75;
 
@@ -79,11 +90,20 @@ body {
 
 .navbar-nav {
   .nav-link {
+    font-size: $font-size-base * .75;
     height: $spacer * 5;
     display: flex;
     align-items: center;
     justify-content: center;
 
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+.nav {
+  &.nav-link {
     &:hover {
       text-decoration: underline;
     }
@@ -94,6 +114,19 @@ h1 {
   font-weight: $font-weight-light;
 }
 
-.btn.btn-secondary {
-  background-color: $gray-300 !important;
+
+.btn {
+  &.btn-secondary {
+    background-color: $gray-300 !important;
+  }
+
+  &.btn-link {
+    text-decoration: none;
+    font-size: $font-size-base * .75;
+    font-weight: bold;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
 }

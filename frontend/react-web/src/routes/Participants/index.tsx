@@ -1,6 +1,6 @@
-import {Col, Container, Row, Stack, Table} from "react-bootstrap";
+import {Button, Col, Container, Modal, Row, Stack, Table} from "react-bootstrap";
 import {NavLink, useParams} from "react-router-dom";
-import {useQuery} from "@tanstack/react-query";
+import {InvalidateQueryFilters, useQuery, useQueryClient} from "@tanstack/react-query";
 import socialEventsApi from "../../api/socialEventsApi.ts";
 import {toast} from "sonner";
 import queryKeys from "../../api/QueryKeys.ts";
@@ -8,10 +8,33 @@ import AddParticipants from "./components/AddParticipants";
 import {format} from "date-fns";
 import socialEventCompaniesApi from "../../api/socialEventCompaniesApi.ts";
 import {AxiosError, HttpStatusCode} from "axios";
+import socialEventPersonsApi from "../../api/socialEventPersonsApi.ts";
+import {useMemo, useState} from "react";
+import {CurrentEvent} from "../Home/components/SocialEventsSection";
+import QueryKeys from "../../api/QueryKeys.ts";
 
 export default function Participants() {
   const {eventId} = useParams();
-  // const {setLoading} = useLoader();
+  const [currentEvent, setCurrentEvent] = useState<CurrentEvent>({id: null, name: ""});
+  const [showModal, setShowModal] = useState(false);
+  const queryClient = useQueryClient();
+
+  const ConfirmationModal = () => (
+    <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Kustuta "<strong>{currentEvent.name}</strong>"</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Oled kindel, et soovid osalejat kustutada?</Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowModal(false)}>
+          Tühista
+        </Button>
+        <Button variant="danger" onClick={handleDelete}>
+          Kustuta
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
 
   const {data: socialEvent, error: getSocialEventError} = useQuery({
     queryKey: [queryKeys.SOCIAL_EVENT, eventId],
@@ -21,7 +44,7 @@ export default function Participants() {
     enabled: !!eventId
   });
 
-  const {data: companies, error: getCompaniesError, isLoading} = useQuery({
+  const {data: companies, error: getCompaniesError, isLoading: isCompaniesLoading} = useQuery({
     queryKey: [queryKeys.COMPANIES_BY_SOCIAL_EVENT_ID, socialEvent?.id],
     queryFn: () => {
       const id = socialEvent?.id;
@@ -36,7 +59,22 @@ export default function Participants() {
     staleTime: 0
   });
 
-  if (getSocialEventError || getCompaniesError) {
+  const {data: persons, error: getPersonsError, isLoading: isPersonsLoading} = useQuery({
+    queryKey: [queryKeys.PERSONS_BY_SOCIAL_EVENT_ID, socialEvent?.id],
+    queryFn: () => {
+      const id = socialEvent?.id;
+      if (typeof id === 'string') {
+        return socialEventPersonsApi.getBySocialEventId(id);
+      } else {
+        throw new Error("Social event ID is undefined");
+      }
+    },
+    enabled: !!socialEvent?.id,
+    refetchOnMount: "always",
+    staleTime: 0
+  });
+
+  if (getSocialEventError || getCompaniesError || getPersonsError) {
     const axiosError = getCompaniesError as AxiosError;
 
     const isError = axiosError && axiosError.response?.status !== HttpStatusCode.NotFound;
@@ -44,6 +82,45 @@ export default function Participants() {
       toast.error("Midagi läks valesti");
     }
   }
+
+  const combinedParticipants = useMemo(() => {
+    const companyData = companies?.data?.map(company => ({
+      id: company.id,
+      createdAt: company.createdAt,
+      primaryText: company.name, // Company name
+      secondaryText: company.registerCode, // Company registerCode
+      participantType: 'company'
+    })) ?? [];
+
+    const personData = persons?.data?.map(person => ({
+      id: person.id,
+      createdAt: person.createdAt,
+      primaryText: `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim(), // Person's name
+      secondaryText: person.idCode, // Person's idCode
+      participantType: 'person'
+    })) ?? [];
+
+    return [...companyData, ...personData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [companies, persons]);
+
+  const openModal = (eventId: string, eventName: string) => {
+    setCurrentEvent({id: eventId, name: eventName});
+    setShowModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (currentEvent.id) {
+      try {
+        await socialEventPersonsApi.delete(eventId, currentEvent.id);
+        toast.success("Osaleja kustutatud");
+      } catch (error) {
+        toast.error("ürituse kustutamine ebaõnnestus");
+      } finally {
+        setShowModal(false);
+        await queryClient.invalidateQueries([QueryKeys.PERSONS_BY_SOCIAL_EVENT_ID, QueryKeys.COMPANIES_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
+      }
+    }
+  };
 
   return (
     <Container className={"shadow-sm bg-white"}>
@@ -54,8 +131,8 @@ export default function Participants() {
         <Col className={"background-image-col"}/>
       </Row>
       <Row className={"justify-content-center"}>
-        <Col md={16} lg={10} className={"p-4"}>
-          <Row><Col><h2 className={"text-primary"}>Osavõtjad</h2></Col></Row>
+        <Col md={16} lg={12} className={"p-4 mb-5"}>
+          <Row className={"mb-3"}><Col><h2 className={"text-primary"}>Osavõtjad</h2></Col></Row>
           <Row>
             <Col>
               <Stack gap={3}>
@@ -82,19 +159,27 @@ export default function Participants() {
                     <Row>
                       <Col sm={24} md={8}>Osavõtjad:</Col>
                     </Row>
-                    {!isLoading && (
-                      <Row>
-                        <Col md={{span: 16, offset: 8}}>
-                          <Table borderless>
+                    {!isCompaniesLoading && !isPersonsLoading && (
+                      <Row className={"mb-5"}>
+                        <Col xl={{span: 16, offset: 8}}>
+                          <Table borderless className={"participants-table"}>
                             <tbody>
-                            {companies?.data.map((x, index) => (
-                              <tr key={x.id}>
-                                <th scope={"row"} className={"text-end px-0"}>{index + 1}.</th>
-                                <td>{x.name}</td>
-                                <td className={"col-4"}>{x.registerCode}</td>
-                                <td className={"col-3"}>
-                                  <NavLink className={"nav nav-link p-0"}
-                                           to={`/social-events/${socialEvent?.id}/participants/companies/${x.id}`}>VAATA</NavLink>
+                            {combinedParticipants.map((participant, index) => (
+                              <tr key={participant.id}>
+                                <th scope={"row"} className={"text-end px-0 table-col-min-width"}>{index + 1}.</th>
+                                <td>{participant.primaryText}</td>
+                                <td>{participant.secondaryText}</td>
+                                <td className={"table-col-min-width"}>
+                                  <NavLink className={"nav nav-link py-0"}
+                                           to={`/social-events/${socialEvent?.id}/participants/${participant.participantType === 'company' ? 'companies' : participant.participantType + 's'}/${participant.id}`}>
+                                    VAATA
+                                  </NavLink>
+                                </td>
+                                <td className={"table-col-min-width"}>
+                                  <Button type={"button"} className={"btn btn-link py-0 d-flex"}
+                                          onClick={() => openModal(participant.id, participant.primaryText)}>
+                                    KUSTUTA
+                                  </Button>
                                 </td>
                               </tr>
                             ))}
@@ -111,6 +196,7 @@ export default function Participants() {
           </Row>
         </Col>
       </Row>
+      <ConfirmationModal/>
     </Container>
   );
 }

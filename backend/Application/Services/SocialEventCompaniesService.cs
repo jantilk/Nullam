@@ -35,6 +35,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
                 .Select(x => new GetCompaniesBySocialEventIdResponse
                 {
                     Id = x.CompanyId,
+                    CreatedAt = x.CreatedAt,
                     Name = x.Company.Name,
                     RegisterCode = x.Company.RegisterCode
                 })
@@ -150,4 +151,29 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
             return OperationResult<bool>.Failure($"Failed to update social event company! {ex}");
         }
     }
+
+    public async Task<OperationResult<bool>> Delete(Guid socialEventId, Guid companyId)
+    {
+        try
+        {
+            var socialEventCompany = await _socialEventCompaniesRepository.GetByCompanyId(socialEventId, companyId);
+
+            if (socialEventCompany == null)
+            {
+                return OperationResult<bool>.Failure("Failed to delete, social event company does not exist!");
+            }
+            
+            var result = await _socialEventCompaniesRepository.Delete(socialEventCompany);
+
+            if (!result) {
+                return OperationResult<bool>.Failure("Failed to Delete social event company");
+            }
+            
+            return OperationResult<bool>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }    }
 }

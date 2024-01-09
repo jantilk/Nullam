@@ -22,7 +22,7 @@ interface AppCardProps {
   title: string;
 }
 
-interface CurrentEvent {
+export interface CurrentEvent {
   id: string | null;
   name: string;
 }
@@ -49,7 +49,6 @@ export default function SocialEventsSection() {
         toast.success("üritus kustutatud");
         setShowModal(false);
       } catch (error) {
-        console.error('Delete operation failed:', error);
         toast.error("ürituse kustutamine ebaõnnestus");
       }
     }

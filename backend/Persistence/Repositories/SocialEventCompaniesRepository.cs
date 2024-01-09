@@ -16,7 +16,7 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
 
     public async Task Add(Guid socialEventId, Guid companyId, AddSocialEventCompanyRequest request)
     {
-        var meetupCompany = new SocialEventCompany
+        var socialEventCompany = new SocialEventCompany
         {
             SocialEventId = socialEventId,
             CompanyId = companyId,
@@ -26,7 +26,7 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
             NumberOfParticipants = request.NumberOfParticipants,
         };
 
-        await _dbContext.SocialEventCompanies.AddAsync(meetupCompany);
+        await _dbContext.SocialEventCompanies.AddAsync(socialEventCompany);
     }
 
     public async Task<List<SocialEventCompany>> GetCompaniesBySocialEventId(Guid eventId)
@@ -49,7 +49,7 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
 
         return result;
     }
-    
+
     public async Task<SocialEventCompany?> GetSocialEventCompany(Guid socialEventId, Guid companyId)
     {
         var result = await _dbContext.SocialEventCompanies
@@ -82,4 +82,21 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
             throw;
         }
     }
+    
+    public async Task<bool> Delete(SocialEventCompany socialEventCompany)
+    {
+        _dbContext.SocialEventCompanies.Remove(socialEventCompany);
+
+        try
+        {
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            // TODO: better error handling
+            // TODO: check elsewhere also
+            Console.WriteLine(ex);
+            throw;
+        }    }
 }
