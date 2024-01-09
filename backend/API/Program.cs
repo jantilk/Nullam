@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Application.Interfaces;
 using Application.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,13 @@ using Persistence.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddTransient<ISocialEventsService, SocialEventsService>();
-builder.Services.AddTransient<ISocialEventsRepository, SocialEventsRepository>();
+builder.Services.AddScoped<ISocialEventsService, SocialEventsService>();
+builder.Services.AddScoped<ISocialEventsRepository, SocialEventsRepository>();
+builder.Services.AddScoped<ISocialEventCompaniesService, SocialEventCompaniesService>();
+builder.Services.AddScoped<ISocialEventCompaniesRepository, SocialEventCompaniesRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 builder.Services.AddDbContext<NullamDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -23,7 +29,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

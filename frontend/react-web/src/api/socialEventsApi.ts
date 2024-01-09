@@ -1,6 +1,7 @@
-import {Response} from "./Response.ts";
 import {SocialEvent} from "../types/SocialEvent.ts";
 import {SocialEventFormData} from "../routes/AddSocialEvent";
+import axios from "axios";
+import {Response} from "./baseApi.ts";
 
 // TODO: move this
 export interface FilterDto {
@@ -23,7 +24,7 @@ interface GetSocialEventsParams {
 const socialEventsApi = {
   add: async (data: SocialEventFormData) => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/social-events", {
+      const response = await fetch("https://localhost:7168/api/v1/social-events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,10 +63,8 @@ const socialEventsApi = {
         }
       }
 
-      const response = await fetch(`http://localhost:8000/api/v1/social-events?${queryParams.toString()}`);
-      console.log(response)
+      const response = await fetch(`https://localhost:7168/api/v1/social-events?${queryParams.toString()}`);
       if (!response.ok) {
-        console.log(response.statusText)
         throw new Error('Network response was not ok');
       }
 
@@ -75,27 +74,16 @@ const socialEventsApi = {
       console.log(e);
     }
   },
-  getById: async (id: string): Promise<SocialEvent | undefined> => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/v1/social-events/${id}`);
-
-      if (!response.ok) {
-        console.log(response.statusText)
-        throw new Error('Network response was not ok');
-      }
-
-      const result: Response<SocialEvent> = await response.json();
-      return result.data;
-    } catch (e) {
-      console.log(e);
-    }
+  getById: async (id: string | undefined): Promise<SocialEvent> => {
+    const result = await axios.get<Response<SocialEvent>>(`https://localhost:7168/api/v1/social-events/${id}`);
+    return result.data.data;
   },
   // update: async () => {
   //
   // }
   delete: async (id: string): Promise<boolean> => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/social-events/${id}`, {
+      const response = await fetch(`https://localhost:7168/api/v1/social-events/${id}`, {
         method: "DELETE",
       });
 
