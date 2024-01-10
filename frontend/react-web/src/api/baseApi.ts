@@ -17,7 +17,7 @@ export type GetCompaniesBySocialEventIdResponse = {
   id: string;
   createdAt: Date;
   name: string;
-  registerCode: string;
+  registerCode: number;
 };
 
 export type GetPersonsBySocialEventIdResponse = {

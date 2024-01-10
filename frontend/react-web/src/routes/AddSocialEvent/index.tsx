@@ -6,7 +6,7 @@ import queryKeys from "../../api/queryKeys.ts";
 import DatePicker from 'react-datepicker';
 import {et} from 'date-fns/locale';
 import "./index.scss";
-import {format, startOfDay} from "date-fns";
+import {startOfDay} from "date-fns";
 import {toast} from "sonner";
 import SocialEventFormData from "../../types/SocialEventFormData.ts";
 import socialEventsApi from "../../api/socialEventsApi.ts";

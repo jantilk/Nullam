@@ -1,20 +1,21 @@
 using System.ComponentModel.DataAnnotations;
 using Application.ValidationAttributes;
+using Domain.ValidationAttributes;
 
 namespace Application.DTOs.Requests;
 
 public class AddSocialEventRequest
 {
     [Required]
-    [MaxLength(75)]
+    [MaxLength(250)]
     public required string Name { get; set; }
 
     [Required]
-    [DateInTheFuture]
+    [FutureDate]
     public required DateTime Date { get; set; }
 
     [Required]
-    [MaxLength(75)]
+    [MaxLength(250)]
     public required string Location { get; set; }
 
     [MaxLength(1000)]

@@ -73,7 +73,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             <Controller
               name="RegisterCode"
               control={control}
-              defaultValue=""
+              defaultValue={0}
               rules={{required: "kohustuslik"}}
               render={({field, fieldState}) => (
                 <>

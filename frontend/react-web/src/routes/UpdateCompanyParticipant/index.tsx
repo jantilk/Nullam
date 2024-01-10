@@ -113,7 +113,7 @@ export default function UpdateCompanyParticipant() {
                       <Controller
                         name="RegisterCode"
                         control={control}
-                        defaultValue=""
+                        defaultValue={0}
                         rules={{required: "kohustuslik"}}
                         render={({field, fieldState}) => (
                           <>

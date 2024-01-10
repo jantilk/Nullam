@@ -9,7 +9,7 @@ export enum PaymentType {
 
 export type AddSocialEventCompanyRequest = {
   Name: string;
-  RegisterCode: string;
+  RegisterCode: number;
   NumberOfParticipants: number;
   PaymentType: PaymentType;
   AdditionalInfo?: string;
@@ -19,7 +19,7 @@ export type CompanyResponse = {
   id: string;
   createdAt: Date
   name: string
-  registerCode: string
+  registerCode: number
 }
 
 export type GetSocialEventCompanyResponse = {
@@ -34,7 +34,7 @@ export type GetSocialEventCompanyResponse = {
 
 export type UpdateSocialEventCompanyRequest = {
   Name: string;
-  RegisterCode: string;
+  RegisterCode: number;
   PaymentType: PaymentType;
   NumberOfParticipants: number;
   AdditionalInfo?: string;

@@ -7,6 +7,8 @@ import {SocialEvent} from "../../../../../../types/SocialEvent.ts";
 import socialEventPersonsApi, {AddSocialEventPersonRequest} from "../../../../../../api/socialEventPersonsApi.ts";
 import queryKeys from "../../../../../../api/queryKeys.ts";
 import {PaymentType} from "../../../../../../api/baseApi.ts";
+import utils from "../../../../../../utils/utils.ts";
+import {ChangeEvent, useState} from "react";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
@@ -40,6 +42,12 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
     mutation.mutate({socialEventId: socialEvent.id, formData});
   }
 
+  const [charCount, setCharCount] = useState(0);
+
+  const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setCharCount(event.target.value.length);
+  };
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack gap={4} className={"mt-3 mb-5"}>
@@ -50,7 +58,10 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
               name="FirstName"
               control={control}
               defaultValue=""
-              rules={{required: "kohustuslik"}}
+              rules={{
+                required: "kohustuslik",
+                maxLength: {value: 50, message: 'Kuni 50 tähemärki'}
+              }}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
@@ -74,7 +85,10 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
               name="LastName"
               control={control}
               defaultValue=""
-              rules={{required: "kohustuslik"}}
+              rules={{
+                required: "kohustuslik",
+                maxLength: {value: 50, message: 'Kuni 50 tähemärki'}
+              }}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
@@ -98,7 +112,12 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
               name="IdCode"
               control={control}
               defaultValue=""
-              rules={{required: "kohustuslik"}}
+              rules={{
+                required: "kohustuslik",
+                validate: {
+                  validEstonianIdCode: value => utils.isValidEstonianIdCode(value) || "Viga isikukoodis."
+                }
+              }}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
@@ -140,14 +159,31 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
           </Col>
         </Form.Group>
         <Form.Group controlId="additionalInfo" as={Row}>
-          <Form.Label column md={8}>Lisainfo: (maksimaalselt 1000 tähemärki)</Form.Label>
+          <Form.Label column md={8}>Lisainfo: (maksimaalselt 1500 tähemärki)</Form.Label>
           <Col md={16}>
             <Controller
               name="AdditionalInfo"
               control={control}
               defaultValue=""
+              rules={{
+                maxLength: {value: 1500, message: 'Maksimaalselt 1500 tähemärki'}
+              }}
               render={({field}) => (
-                <Form.Control as={"textarea"} rows={4} maxLength={1000} {...field} />
+                <>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    maxLength={1500}
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleTextChange(e);
+                    }}
+                  />
+                  <div className="text-count">
+                    {charCount}/1500
+                  </div>
+                </>
               )}
             />
           </Col>

@@ -2,7 +2,7 @@ using Application.ValidationAttributes;
 
 namespace Application.DTOs;
 
-[DateRangeValidation]
+[DateRange]
 public class FilterDto
 {
     public string? Keyword { get; set; }

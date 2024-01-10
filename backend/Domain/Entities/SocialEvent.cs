@@ -5,8 +5,10 @@ namespace Domain.Entities;
 
 public class SocialEvent : EntityBase
 {
+    [MaxLength(250)]
     public required string Name { get; set; }
     public required DateTime Date { get; set; }
+    [MaxLength(250)]
     public required string Location { get; set; }
     [MaxLength(1000)]
     public string? AdditionalInfo { get; set; }
