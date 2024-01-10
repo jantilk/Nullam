@@ -9,8 +9,8 @@ export enum PaymentType {
 
 export type AddSocialEventCompanyRequest = {
   Name: string;
-  RegisterCode: number;
-  NumberOfParticipants: number;
+  RegisterCode: number | undefined;
+  NumberOfParticipants: number | undefined;
   PaymentType: PaymentType;
   AdditionalInfo?: string;
 };

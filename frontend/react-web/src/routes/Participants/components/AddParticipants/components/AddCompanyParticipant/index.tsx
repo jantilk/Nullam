@@ -85,7 +85,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             <Controller
               name="RegisterCode"
               control={control}
-              defaultValue={0}
+              defaultValue={undefined}
               rules={{
                 required: "kohustuslik",
                 minLength: {
@@ -123,7 +123,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             <Controller
               name="NumberOfParticipants"
               control={control}
-              defaultValue={0}
+              defaultValue={undefined}
               rules={{
                 required: "kohustuslik",
                 min: {
@@ -157,7 +157,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             <Controller
               name="PaymentType"
               control={control}
-              rules={{required: "Required"}}
+              rules={{required: "Kohustuslik"}}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control as="select" {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>

@@ -130,6 +130,10 @@ public class SocialEventsService : ISocialEventsService
                 return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Social event not found.");
             }
 
+            if (socialEvent.Date < DateTime.UtcNow) {
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Cannot delete past event.");
+            }
+            
             var result = await _socialEventsRepository.Delete(socialEvent);
             
             if (!result) {

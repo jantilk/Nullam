@@ -24,12 +24,6 @@ export default function Participants() {
   const [currentParticipant, setCurrentParticipant] = useState<CurrentParticipant>({id: null, name: "", type: null});
   const [showModal, setShowModal] = useState(false);
   const queryClient = useQueryClient();
-  const isEventInFuture = () => {
-    if (!socialEvent?.date) {
-      return false;
-    }
-    return new Date(socialEvent.date) > new Date();
-  };
 
   const ConfirmationModal = () => (
     <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -241,17 +235,15 @@ export default function Participants() {
                                     VAATA
                                   </NavLink>
                                 </td>
-                                {isEventInFuture() && (
-                                  <td className={"table-col-min-width"}>
-                                    <Button
-                                      type={"button"}
-                                      className={"btn btn-link py-0 d-flex"}
-                                      onClick={() => openModal(participant.id, participant.primaryText, participant.participantType)}
-                                    >
-                                      KUSTUTA
-                                    </Button>
-                                  </td>
-                                )}
+                                <td className={"table-col-min-width"}>
+                                  <Button
+                                    type={"button"}
+                                    className={"btn btn-link py-0 d-flex"}
+                                    onClick={() => openModal(participant.id, participant.primaryText, participant.participantType)}
+                                  >
+                                    KUSTUTA
+                                  </Button>
+                                </td>
                               </tr>
                             ))}
                             </tbody>
@@ -259,7 +251,7 @@ export default function Participants() {
                         </Col>
                       </Row>
                     )}
-                    {isEventInFuture() && <AddParticipants socialEvent={socialEvent}/>}
+                    <AddParticipants socialEvent={socialEvent}/>
                   </Col>
                 </Row>
               </Stack>

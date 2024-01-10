@@ -43,6 +43,7 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
     {
         var result = await _dbContext.SocialEventCompanies
             .Include(x => x.Company)
+            .Include(x => x.SocialEvent)
             .Where(x => x.SocialEventId == socialEventId)
             .Where(x => x.CompanyId == companyId)
             .FirstOrDefaultAsync();

@@ -139,7 +139,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
             <Controller
               name="PaymentType"
               control={control}
-              rules={{required: "Required"}}
+              rules={{required: "Kohustuslik"}}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control as="select" {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>

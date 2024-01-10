@@ -157,6 +157,10 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
                 return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Social event company not found");
             }
             
+            if (socialEventCompany.SocialEvent.Date < DateTime.UtcNow) {
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Cannot delete company from past event.");
+            }
+            
             var result = await _socialEventCompaniesRepository.Delete(socialEventCompany);
 
             if (!result) {

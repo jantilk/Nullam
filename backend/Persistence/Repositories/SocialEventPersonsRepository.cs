@@ -43,6 +43,7 @@ public class SocialEventPersonsRepository : ISocialEventPersonsRepository
     {
         var result = await _dbContext.SocialEventPersons
             .Include(x => x.Person)
+            .Include(x => x.SocialEvent)
             .Where(x => x.SocialEventId == socialEventId)
             .Where(x => x.PersonId == personId)
             .FirstOrDefaultAsync();
