@@ -20,9 +20,6 @@ public class SocialEventsService : ISocialEventsService
     
     public async Task<OperationResult<bool>> Add(AddSocialEventRequest request)
     {
-        Console.WriteLine(request.Date.Kind);
-        Console.WriteLine(request.Date.ToString(CultureInfo.InvariantCulture));
-        
         try
         {
             var socialEvent = new SocialEvent
@@ -79,8 +76,6 @@ public class SocialEventsService : ISocialEventsService
             {
                 return null;
             }
-            Console.WriteLine(socialEvent.Date.Kind);
-            Console.WriteLine(socialEvent.Date.ToString(CultureInfo.InvariantCulture));
 
             var response = new GetSocialEventByIdResponse()
             {

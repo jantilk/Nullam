@@ -35,12 +35,10 @@ public class NullamDbContext : DbContext
 
         modelBuilder.Entity<SocialEvent>()
             .Property(se => se.Date)
-            .ValueGeneratedOnAddOrUpdate()
             .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         
         modelBuilder.Entity<SocialEvent>()
             .Property(se => se.CreatedAt)
-            .ValueGeneratedOnAddOrUpdate()
             .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         
         base.OnModelCreating(modelBuilder);
