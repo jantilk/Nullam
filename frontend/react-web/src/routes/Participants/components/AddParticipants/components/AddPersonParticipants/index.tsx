@@ -9,7 +9,7 @@ import queryKeys from "../../../../../../api/queryKeys.ts";
 import {PaymentType} from "../../../../../../api/baseApi.ts";
 
 interface ComponentProps {
-  socialEvent?: SocialEvent;
+  socialEvent?: SocialEvent | null;
 }
 
 export default function AddPersonParticipants({socialEvent}: ComponentProps) {

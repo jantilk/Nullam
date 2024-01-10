@@ -1,9 +1,10 @@
+import baseApi, {getData, Response} from "./baseApi.ts";
+import {UpdateSocialEventPersonRequest} from "./socialEventPersonsApi.ts";
 import {SocialEvent} from "../types/SocialEvent.ts";
-import axios from "axios";
-import {Response} from "./baseApi.ts";
 import SocialEventFormData from "../types/SocialEventFormData.ts";
 
-// TODO: move this
+const baseUrl = '/api/v1/social-events';
+
 export interface FilterDto {
   Keyword?: string;
   StartDate?: Date;
@@ -15,89 +16,45 @@ export enum SortingOption {
   DateDesc = "DateDesc"
 }
 
-interface GetSocialEventsParams {
-  orderBy?: SortingOption;
-  filter?: FilterDto;
-}
-
-// TODO: configure cors policy for development?
 const socialEventsApi = {
-  add: async (data: SocialEventFormData) => {
-    try {
-      const response = await fetch("http://localhost:8000/api/v1/social-events", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+  add: (formData: SocialEventFormData) =>
+    baseApi
+      .post<Response<boolean>>(`${baseUrl}`, formData)
+      .then(getData),
+  get: async (orderBy: SortingOption, filter: FilterDto) => {
+    const queryParams = new URLSearchParams();
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (e) {
-      console.error(e);
-      throw e;
+    if (orderBy) {
+      queryParams.append("orderBy", orderBy);
     }
-  },
-  get: async ({orderBy, filter}: GetSocialEventsParams = {}): Promise<SocialEvent[] | undefined> => {
-    try {
-      const queryParams = new URLSearchParams();
 
-      if (orderBy) {
-        queryParams.append("orderBy", orderBy);
+    if (filter) {
+      if (filter.Keyword) {
+        queryParams.append("filter.Keyword", filter.Keyword);
       }
-
-      if (filter) {
-        if (filter.Keyword) {
-          queryParams.append("filter.Keyword", filter.Keyword);
-        }
-        if (filter.StartDate) {
-          queryParams.append("filter.StartDate", filter.StartDate.toISOString());
-        }
-        if (filter.EndDate) {
-          queryParams.append("filter.EndDate", filter.EndDate.toISOString());
-        }
+      if (filter.StartDate) {
+        queryParams.append("filter.StartDate", filter.StartDate.toISOString());
       }
-
-      const response = await fetch(`http://localhost:8000/api/v1/social-events?${queryParams.toString()}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      if (filter.EndDate) {
+        queryParams.append("filter.EndDate", filter.EndDate.toISOString());
       }
-
-      const result: Response<SocialEvent[]> = await response.json();
-      return result.data;
-    } catch (e) {
-      console.log(e);
     }
-  },
-  getById: async (id: string | undefined): Promise<SocialEvent> => {
-    const result = await axios.get<Response<SocialEvent>>(`http://localhost:8000/api/v1/social-events/${id}`);
-    return result.data.data;
-  },
-  // update: async () => {
-  //
-  // }
-  delete: async (id: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/v1/social-events/${id}`, {
-        method: "DELETE",
-      });
 
-      if (!response.ok) {
-        console.log(response.statusText);
-        throw new Error('Network response was not ok');
-      }
-
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
+    const response = await baseApi.get<Response<SocialEvent[]>>(`${baseUrl}?${queryParams.toString()}`);
+    return getData(response);
   },
+  getById: (socialEventId: string | undefined) =>
+    baseApi
+      .get<Response<SocialEvent>>(`${baseUrl}/${socialEventId}`)
+      .then(getData),
+  update: (socialEventId: string, personId: string, formData: UpdateSocialEventPersonRequest) =>
+    baseApi
+      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/persons/${personId}`, formData)
+      .then(getData),
+  delete: async (socialEventId: string) =>
+    baseApi
+      .delete<Response<boolean>>(`${baseUrl}/${socialEventId}`)
+      .then(getData)
 }
 
 export default socialEventsApi;

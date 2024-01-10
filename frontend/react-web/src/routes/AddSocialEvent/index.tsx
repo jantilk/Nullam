@@ -2,14 +2,14 @@ import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {InvalidateQueryFilters, useQueryClient} from "@tanstack/react-query";
 import {Controller, useForm} from "react-hook-form";
-import socialEventsApi from "../../api/socialEventsApi.ts";
 import queryKeys from "../../api/queryKeys.ts";
 import DatePicker from 'react-datepicker';
 import {et} from 'date-fns/locale';
 import "./index.scss";
-import {startOfDay} from "date-fns";
+import {format, startOfDay} from "date-fns";
 import {toast} from "sonner";
 import SocialEventFormData from "../../types/SocialEventFormData.ts";
+import socialEventsApi from "../../api/socialEventsApi.ts";
 
 export default function AddSocialEvent() {
   const navigate = useNavigate();
@@ -17,9 +17,11 @@ export default function AddSocialEvent() {
   const queryClient = useQueryClient();
 
   const onSubmit = async (data: SocialEventFormData) => {
+    console.log('data')
+    console.log(data)
+
     try {
       await socialEventsApi.add(data);
-
       navigate("/");
       toast.success('Ürituse lisamine õnnestus!');
       await queryClient.invalidateQueries([queryKeys.FUTURE_SOCIAL_EVENTS] as InvalidateQueryFilters);

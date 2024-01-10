@@ -10,13 +10,13 @@ import {
   Button
 } from 'react-bootstrap';
 import {InvalidateQueryFilters, useQuery, useQueryClient} from "@tanstack/react-query";
-import socialEventsApi, {SortingOption} from "../../../../api/socialEventsApi.ts";
 import {NavLink} from "react-router-dom";
 import queryKeys from "../../../../api/queryKeys.ts";
-import {ReactNode, useState} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import RemoveIcon from '/public/remove.svg?react'
 import {toast} from "sonner";
 import {format} from 'date-fns';
+import socialEventsApi, {SortingOption} from "../../../../api/socialEventsApi.ts";
 
 interface AppCardProps {
   children?: ReactNode;
@@ -85,9 +85,20 @@ export default function SocialEventsSection() {
       const today = new Date();
       const filter = {StartDate: today};
       const orderBy = SortingOption.DateAsc;
-      return socialEventsApi.get({orderBy, filter});
-    }
+      return socialEventsApi.get(orderBy, filter);
+    },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
   });
+
+  useEffect(() => {
+    console.log('futureSocialEvents')
+    console.log(futureSocialEvents)
+  }, []);
 
   const {data: pastSocialEvents, error: pastError} = useQuery({
     queryKey: [queryKeys.PAST_SOCIAL_EVENTS],
@@ -95,8 +106,14 @@ export default function SocialEventsSection() {
       const today = new Date();
       const filter = {EndDate: today};
       const orderBy = SortingOption.DateDesc;
-      return socialEventsApi.get({orderBy, filter});
-    }
+      return socialEventsApi.get(orderBy, filter);
+    },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
   });
 
   if (futureError || pastError) {

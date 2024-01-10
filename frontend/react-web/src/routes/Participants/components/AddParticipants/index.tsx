@@ -7,7 +7,7 @@ import AddPersonParticipants from "./components/AddPersonParticipants";
 import "./index.scss";
 
 interface ComponentProps {
-  socialEvent?: SocialEvent;
+  socialEvent?: SocialEvent | null;
 }
 
 export default function AddParticipants({socialEvent}: ComponentProps) {

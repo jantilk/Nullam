@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {AxiosResponse} from 'axios';
+import {format} from "date-fns";
 
 export interface Response<T> {
   data: T;
@@ -33,6 +34,17 @@ export const getData = <T>(response: AxiosResponse<T>) => response?.data;
 
 const defaultInstance = axios.create({
   baseURL: apiUrl,
+});
+
+defaultInstance.interceptors.request.use((config) => {
+  if (config.data && typeof config.data === 'object') {
+    Object.keys(config.data).forEach(key => {
+      if (config.data[key] instanceof Date) {
+        config.data[key] = format(config.data[key], "yyyy-MM-dd'T'HH:mm:ss");
+      }
+    });
+  }
+  return config;
 });
 
 export default defaultInstance;

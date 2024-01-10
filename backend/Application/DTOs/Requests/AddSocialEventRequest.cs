@@ -11,7 +11,7 @@ public class AddSocialEventRequest
 
     [Required]
     [DateInTheFuture]
-    public required string Date { get; set; }
+    public required DateTime Date { get; set; }
 
     [Required]
     [MaxLength(75)]

@@ -1,7 +1,6 @@
 import {Button, Col, Container, Modal, Row, Stack, Table} from "react-bootstrap";
 import {NavLink, useParams} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import socialEventsApi from "../../api/socialEventsApi.ts";
 import {toast} from "sonner";
 import queryKeys from "../../api/queryKeys.ts";
 import AddParticipants from "./components/AddParticipants";
@@ -10,6 +9,7 @@ import socialEventCompaniesApi from "../../api/socialEventCompaniesApi.ts";
 import {AxiosError, HttpStatusCode} from "axios";
 import socialEventPersonsApi from "../../api/socialEventPersonsApi.ts";
 import {useMemo, useState} from "react";
+import socialEventsApi from "../../api/socialEventsApi.ts";
 
 export interface CurrentParticipant {
   id: string | null;
@@ -53,6 +53,12 @@ export default function Participants() {
     queryFn: () => {
       return socialEventsApi.getById(eventId)
     },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
     enabled: !!eventId
   });
 
@@ -65,6 +71,12 @@ export default function Participants() {
       } else {
         throw new Error("Social event ID is undefined");
       }
+    },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
     },
     enabled: !!socialEvent?.id,
     refetchOnMount: "always",
@@ -81,6 +93,12 @@ export default function Participants() {
         throw new Error("Social event ID is undefined");
       }
     },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
     enabled: !!socialEvent?.id,
     refetchOnMount: "always",
     staleTime: 0
@@ -96,7 +114,7 @@ export default function Participants() {
   }
 
   const combinedParticipants = useMemo(() => {
-    const companyParticipants = companies?.data?.map(company => ({
+    const companyParticipants = companies?.map(company => ({
       id: company.id,
       createdAt: company.createdAt,
       primaryText: company.name,
@@ -104,7 +122,7 @@ export default function Participants() {
       participantType: 'company' as const
     })) ?? [];
 
-    const personParticipants = persons?.data?.map(person => ({
+    const personParticipants = persons?.map(person => ({
       id: person.id,
       createdAt: person.createdAt,
       primaryText: `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim(),
@@ -127,7 +145,6 @@ export default function Participants() {
   }, [companies, persons]);
 
   const openModal = (participantId: string, participantName: string, participantType: ParticipantType) => {
-    console.log(participantType)
     setCurrentParticipant({id: participantId, name: participantName, type: participantType});
     setShowModal(true);
   };
@@ -196,7 +213,7 @@ export default function Participants() {
                 <Row>
                   <Col sm={24} md={8}>Toimumise aeg:</Col>
                   <Col md={16}>
-                    {socialEvent?.date && format(new Date(socialEvent?.date), 'dd.mm.yyyy')}
+                    {socialEvent?.date && format(new Date(socialEvent?.date), 'dd.MM.yyyy HH:mm')}
                   </Col>
                 </Row>
                 <Row>

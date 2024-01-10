@@ -23,9 +23,9 @@ public class SocialEventsService : ISocialEventsService
             var socialEvent = new SocialEvent
             {
                 Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
                 Name = request.Name,
-                Date = DateTime.Parse(request.Date),
+                Date = request.Date,
                 Location = request.Location,
                 AdditionalInfo = request.AdditionalInfo,
             };
@@ -51,7 +51,7 @@ public class SocialEventsService : ISocialEventsService
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Date = x.Date.ToLocalTime()
+                    Date = x.Date
                 })
                 .ToList();
             
@@ -78,7 +78,7 @@ public class SocialEventsService : ISocialEventsService
             {
                 Id = socialEvent.Id,
                 Name = socialEvent.Name,
-                Date = socialEvent.Date.ToLocalTime(),
+                Date = socialEvent.Date,
                 Location = socialEvent.Location
             };
             
