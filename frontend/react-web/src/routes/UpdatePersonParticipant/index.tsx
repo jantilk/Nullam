@@ -2,13 +2,14 @@ import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import queryKeys from "../../api/queryKeys.ts";
-import {useEffect} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import {toast} from "sonner";
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
 import socialEventPersonsApi, {
   AddSocialEventPersonRequest,
   UpdateSocialEventPersonRequest
 } from "../../api/socialEventPersonsApi.ts";
+import utils from "../../utils/utils.ts";
 
 export default function UpdatePersonParticipant() {
   const {control, handleSubmit, reset} = useForm<AddSocialEventPersonRequest>();
@@ -67,6 +68,11 @@ export default function UpdatePersonParticipant() {
     mutation.mutate({eventId, personId, formData});
   }
 
+  const [charCount, setCharCount] = useState(0);
+  const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setCharCount(event.target.value.length);
+  };
+
   return (
     <Container className={"shadow-sm bg-white"}>
       <Row>
@@ -93,7 +99,10 @@ export default function UpdatePersonParticipant() {
                         name="FirstName"
                         control={control}
                         defaultValue=""
-                        rules={{required: "kohustuslik"}}
+                        rules={{
+                          required: "kohustuslik",
+                          maxLength: {value: 50, message: 'Kuni 50 tähemärki'}
+                        }}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -117,7 +126,10 @@ export default function UpdatePersonParticipant() {
                         name="LastName"
                         control={control}
                         defaultValue=""
-                        rules={{required: "kohustuslik"}}
+                        rules={{
+                          required: "kohustuslik",
+                          maxLength: {value: 50, message: 'Kuni 50 tähemärki'}
+                        }}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -135,13 +147,18 @@ export default function UpdatePersonParticipant() {
                     </Col>
                   </Form.Group>
                   <Form.Group controlId="idCode" as={Row}>
-                    <Form.Label column sm={24} md={8}>Registrikood:*</Form.Label>
+                    <Form.Label column sm={24} md={8}>Isikukood:*</Form.Label>
                     <Col md={16}>
                       <Controller
                         name="IdCode"
                         control={control}
                         defaultValue=""
-                        rules={{required: "kohustuslik"}}
+                        rules={{
+                          required: "kohustuslik",
+                          validate: {
+                            validEstonianIdCode: value => utils.isValidEstonianIdCode(value) || "Viga isikukoodis."
+                          }
+                        }}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -183,14 +200,37 @@ export default function UpdatePersonParticipant() {
                     </Col>
                   </Form.Group>
                   <Form.Group controlId="additionalInfo" as={Row}>
-                    <Form.Label column md={8}>Lisainfo: (maksimaalselt 1000 tähemärki)</Form.Label>
+                    <Form.Label column md={8}>Lisainfo: (maksimaalselt 1500 tähemärki)</Form.Label>
                     <Col md={16}>
                       <Controller
                         name="AdditionalInfo"
                         control={control}
                         defaultValue=""
-                        render={({field}) => (
-                          <Form.Control as={"textarea"} rows={4} maxLength={1000} {...field} />
+                        rules={{
+                          maxLength: {value: 1500, message: 'Maksimaalselt 1500 tähemärki'}
+                        }}
+                        render={({field, fieldState}) => (
+                          <>
+                            <Form.Control
+                              as="textarea"
+                              rows={4}
+                              maxLength={1500}
+                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleTextChange(e);
+                              }}
+                            />
+                            <div className="text-count">
+                              {charCount}/1500
+                            </div>
+                            {fieldState.error && (
+                              <div className="invalid-feedback">
+                                {fieldState.error.message}
+                              </div>
+                            )}
+                          </>
                         )}
                       />
                     </Col>
@@ -199,7 +239,7 @@ export default function UpdatePersonParticipant() {
                 <Row>
                   <Col sm={6}>
                     {/*TODO: navigate back*/}
-                    <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100"}>
+                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100"}>
                       Tagasi
                     </Button>
                   </Col>

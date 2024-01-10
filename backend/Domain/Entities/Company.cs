@@ -7,7 +7,6 @@ public class Company : EntityBase
 {
     [MaxLength(100)]
     public required string Name { get; set; }
-    [MinLength(8)]
-    [MaxLength(8)]
+    [Range(10000000, 99999999)]
     public required int RegisterCode { get; set; }
 }

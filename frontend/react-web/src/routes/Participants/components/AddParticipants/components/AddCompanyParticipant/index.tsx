@@ -7,6 +7,7 @@ import {SocialEvent} from "../../../../../../types/SocialEvent.ts";
 import queryKeys from "../../../../../../api/queryKeys.ts";
 import socialEventCompaniesApi, {AddSocialEventCompanyRequest} from "../../../../../../api/socialEventCompaniesApi.ts";
 import {PaymentType} from "../../../../../../api/baseApi.ts";
+import {ChangeEvent, useState} from "react";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
@@ -40,6 +41,11 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
     mutation.mutate({socialEventId: socialEvent.id, formData});
   }
 
+  const [charCount, setCharCount] = useState(0);
+  const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setCharCount(event.target.value.length);
+  };
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack gap={4} className={"mt-3 mb-5"}>
@@ -50,7 +56,13 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               name="Name"
               control={control}
               defaultValue=""
-              rules={{required: "kohustuslik"}}
+              rules={{
+                required: "kohustuslik",
+                maxLength: {
+                  value: 50,
+                  message: "Kuni 50 tähemärki"
+                },
+              }}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
@@ -58,7 +70,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                     type="text" {...field}
                   />
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -74,7 +86,21 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               name="RegisterCode"
               control={control}
               defaultValue={0}
-              rules={{required: "kohustuslik"}}
+              rules={{
+                required: "kohustuslik",
+                minLength: {
+                  value: 8,
+                  message: "Registrikood peab olema 8 numbrit pikk"
+                },
+                maxLength: {
+                  value: 8,
+                  message: "Registrikood peab olema 8 numbrit pikk"
+                },
+                pattern: {
+                  value: /^\d{8}$/,
+                  message: "Registrikood peab sisaldama ainult numbreid"
+                }
+              }}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
@@ -82,7 +108,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                     type="text" {...field}
                   />
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -103,6 +129,10 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                 min: {
                   value: 1,
                   message: "vähemalt 1 osaleja"
+                },
+                max: {
+                  value: Number.MAX_SAFE_INTEGER,
+                  message: "Nii palju ei saa, ei mahu ära 😄"
                 }
               }}
               render={({field, fieldState}) => (
@@ -136,7 +166,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                     <option value={PaymentType.BankTransaction}>Pangaülekanne</option>
                   </Form.Control>
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -146,14 +176,37 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
           </Col>
         </Form.Group>
         <Form.Group controlId="additionalInfo" as={Row}>
-          <Form.Label column md={8}>Lisainfo: (maksimaalselt 1000 tähemärki)</Form.Label>
+          <Form.Label column md={8}>Lisainfo: (maksimaalselt 5000 tähemärki)</Form.Label>
           <Col md={16}>
             <Controller
               name="AdditionalInfo"
               control={control}
               defaultValue=""
-              render={({field}) => (
-                <Form.Control as={"textarea"} rows={4} maxLength={1000} {...field} />
+              rules={{
+                maxLength: {value: 5000, message: 'Maksimaalselt 5000 tähemärki'}
+              }}
+              render={({field, fieldState}) => (
+                <>
+                  <Form.Control
+                    as={"textarea"}
+                    rows={4}
+                    maxLength={5000}
+                    {...field}
+                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleTextChange(e);
+                    }}
+                  />
+                  <div className="text-count">
+                    {charCount}/5000
+                  </div>
+                  {fieldState.error && (
+                    <div className="invalid-feedback">
+                      {fieldState.error.message}
+                    </div>
+                  )}
+                </>
               )}
             />
           </Col>

@@ -43,7 +43,6 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
   }
 
   const [charCount, setCharCount] = useState(0);
-
   const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCharCount(event.target.value.length);
   };
@@ -69,7 +68,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                     type="text" {...field}
                   />
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -96,7 +95,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                     type="text" {...field}
                   />
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -125,7 +124,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                     type="text" {...field}
                   />
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -149,7 +148,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                     <option value={PaymentType.BankTransaction}>Pangaülekanne</option>
                   </Form.Control>
                   {fieldState.error && (
-                    <div className="invalid-feedback"> {/* Use div for error message */}
+                    <div className="invalid-feedback">
                       {fieldState.error.message}
                     </div>
                   )}
@@ -168,12 +167,13 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
               rules={{
                 maxLength: {value: 1500, message: 'Maksimaalselt 1500 tähemärki'}
               }}
-              render={({field}) => (
+              render={({field, fieldState}) => (
                 <>
                   <Form.Control
                     as="textarea"
                     rows={4}
                     maxLength={1500}
+                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
                     {...field}
                     onChange={(e) => {
                       field.onChange(e);
@@ -183,6 +183,11 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                   <div className="text-count">
                     {charCount}/1500
                   </div>
+                  {fieldState.error && (
+                    <div className="invalid-feedback">
+                      {fieldState.error.message}
+                    </div>
+                  )}
                 </>
               )}
             />

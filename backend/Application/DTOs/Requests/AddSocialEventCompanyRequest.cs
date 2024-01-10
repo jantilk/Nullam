@@ -9,8 +9,7 @@ public class AddSocialEventCompanyRequest
     [MaxLength(100)]
     public required string Name { get; set; }
     [Required]
-    [MinLength(8)]
-    [MaxLength(8)]
+    [Range(10000000, 99999999)]
     public required int RegisterCode { get; set; }
     [Required]
     public required PaymentType PaymentType { get; set; }
