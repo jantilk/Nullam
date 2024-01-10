@@ -232,22 +232,26 @@ export default function Participants() {
                               <tr key={participant.id}>
                                 <th scope={"row"} className={"text-end px-0 table-col-min-width"}>{index + 1}.</th>
                                 <td>{participant.primaryText}</td>
-                                <td>{participant.secondaryText}</td>
+                                <td className={"table-col-min-width"}>{participant.secondaryText}</td>
                                 <td className={"table-col-min-width"}>
-                                  <NavLink className={"nav nav-link py-0"}
-                                           to={`/social-events/${socialEvent?.id}/participants/${participant.participantType === 'company' ? 'companies' : participant.participantType + 's'}/${participant.id}`}>
+                                  <NavLink
+                                    className={"nav nav-link py-0"}
+                                    to={`/social-events/${socialEvent?.id}/participants/${participant.participantType === 'company' ? 'companies' : participant.participantType + 's'}/${participant.id}`}
+                                  >
                                     VAATA
                                   </NavLink>
                                 </td>
-                                <td className={"table-col-min-width"}>
-                                  <Button
-                                    type={"button"}
-                                    className={"btn btn-link py-0 d-flex"}
-                                    onClick={() => openModal(participant.id, participant.primaryText, participant.participantType)}
-                                  >
-                                    KUSTUTA
-                                  </Button>
-                                </td>
+                                {isEventInFuture() && (
+                                  <td className={"table-col-min-width"}>
+                                    <Button
+                                      type={"button"}
+                                      className={"btn btn-link py-0 d-flex"}
+                                      onClick={() => openModal(participant.id, participant.primaryText, participant.participantType)}
+                                    >
+                                      KUSTUTA
+                                    </Button>
+                                  </td>
+                                )}
                               </tr>
                             ))}
                             </tbody>

@@ -24,19 +24,9 @@ body {
   color: $danger;
 }
 
-//@include media-breakpoint-down(sm) {
-//  body {
-//    font-size: 4rem;
-//  }
-//
-//  .navbar-nav .nav-link {
-//    &.text-sm {
-//      font-size: 0.8rem;
-//    }
-//  }
-//}
+@include media-breakpoint-down(sm) {
 
-// TODO: navbar text color white... ?
+}
 
 @include media-breakpoint-down(md) {
   .navbar-nav .nav-link {

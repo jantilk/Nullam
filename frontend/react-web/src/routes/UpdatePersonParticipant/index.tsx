@@ -200,7 +200,7 @@ export default function UpdatePersonParticipant() {
                     </Col>
                   </Form.Group>
                   <Form.Group controlId="additionalInfo" as={Row}>
-                    <Form.Label column md={8}>Lisainfo: (maksimaalselt 1500 tähemärki)</Form.Label>
+                    <Form.Label column md={8}>Lisainfo:</Form.Label>
                     <Col md={16}>
                       <Controller
                         name="AdditionalInfo"
@@ -222,13 +222,11 @@ export default function UpdatePersonParticipant() {
                                 handleTextChange(e);
                               }}
                             />
-                            <div className="text-count">
-                              {charCount}/1500
+                            <div className="text-count justify-content-end d-flex py-1 px-2">
+                              <span>{charCount}/1500</span>
                             </div>
                             {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -238,7 +236,7 @@ export default function UpdatePersonParticipant() {
                 </Stack>
                 <Row>
                   <Col sm={6}>
-                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100"}>
+                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100 mb-4 mb-sm-0"}>
                       Tagasi
                     </Button>
                   </Col>

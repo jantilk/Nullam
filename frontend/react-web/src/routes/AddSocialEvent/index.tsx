@@ -73,9 +73,7 @@ export default function AddSocialEvent() {
                               type="text" {...field}
                             />
                             {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -117,9 +115,7 @@ export default function AddSocialEvent() {
                               wrapperClassName="w-100"
                             />
                             {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -147,9 +143,7 @@ export default function AddSocialEvent() {
                               className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
                             />
                             {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -179,13 +173,11 @@ export default function AddSocialEvent() {
                                 handleTextChange(e);
                               }}
                             />
-                            <div className="text-count">
-                              {charCount}/5000
+                            <div className="text-count justify-content-end d-flex py-1 px-2">
+                              <span>{charCount}/1000</span>
                             </div>
                             {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -195,7 +187,7 @@ export default function AddSocialEvent() {
                 </Stack>
                 <Row>
                   <Col sm={6}>
-                    <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100"}>
+                    <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100 mb-4 mb-sm-0"}>
                       Tagasi
                     </Button>
                   </Col>

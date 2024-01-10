@@ -126,12 +126,9 @@ export default function SocialEventsSection() {
                 <tr key={x.id}>
                   <th scope={"row"} className={"px-0"}>{index + 1}.</th>
                   <td>{x.name}</td>
-                  {/*TODO: fix formatting*/}
                   <td className={"col-4"}>{format(new Date(x.date), 'dd.MM.yyyy')}</td>
                   <td className={"col-3"}>
-                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`} end>
-                      OSAVÕTJAD
-                    </NavLink>
+                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`} end>OSAVÕTJAD</NavLink>
                   </td>
                   <td className={"col-1"}>
                     <RemoveIcon

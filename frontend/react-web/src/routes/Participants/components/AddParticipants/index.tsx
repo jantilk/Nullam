@@ -44,10 +44,10 @@ export default function AddParticipants({socialEvent}: ComponentProps) {
       </Row>
       <Row>
         <Col>
-          {participantType === "company" ? (
-            <AddCompanyParticipant socialEvent={socialEvent}/>
-          ) : (
+          {participantType === "person" ? (
             <AddPersonParticipants socialEvent={socialEvent}/>
+          ) : (
+            <AddCompanyParticipant socialEvent={socialEvent}/>
           )}
         </Col>
       </Row>

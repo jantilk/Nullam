@@ -35,15 +35,4 @@ const defaultInstance = axios.create({
   baseURL: apiUrl,
 });
 
-// defaultInstance.interceptors.request.use((config) => {
-//   if (config.data && typeof config.data === 'object') {
-//     Object.keys(config.data).forEach(key => {
-//       if (config.data[key] instanceof Date) {
-//         config.data[key] = config.data[key].toISOString();
-//       }
-//     });
-//   }
-//   return config;
-// });
-
 export default defaultInstance;

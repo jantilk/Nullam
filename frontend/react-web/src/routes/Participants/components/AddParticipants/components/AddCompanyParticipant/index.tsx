@@ -198,13 +198,11 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                       handleTextChange(e);
                     }}
                   />
-                  <div className="text-count">
-                    {charCount}/5000
+                  <div className="text-count justify-content-end d-flex py-1 px-2">
+                    <span>{charCount}/5000</span>
                   </div>
                   {fieldState.error && (
-                    <div className="invalid-feedback">
-                      {fieldState.error.message}
-                    </div>
+                    <div className="invalid-feedback">{fieldState.error.message}</div>
                   )}
                 </>
               )}
@@ -214,7 +212,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
       </Stack>
       <Row>
         <Col sm={6}>
-          <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100"}>
+          <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100 mb-4 mb-sm-0"}>
             Tagasi
           </Button>
         </Col>
