@@ -44,8 +44,8 @@ public class NullamDbContext : DbContext
         // Check if the database already has social events
         if (!context.SocialEvents.Any())
         {
-            var locationsInEstonia = new[] { "Tallinn", "Tartu", "P?rnu", "Narva", "Kohtla-J?rve", "Viljandi", "Rakvere", "Maardu", "Sillam?e", "Kuressaare" };
-            var additionalInfos = new[] { "?ritus vabas ?hus", null, "Siseruumides toimuv ?ritus", null, null, "V?imalus osaleda t??tubades", null, null, null, "Muusikaline etteaste" };
+            var locationsInEstonia = new[] { "Tallinn", "Tartu", "Pärnu", "Narva", "Kohtla-Järve", "Viljandi", "Rakvere", "Maardu", "Sillamäe", "Kuressaare" };
+            var additionalInfos = new[] { "Üritus vabas Õhus", null, "Siseruumides toimuv Üritus", null, null, "Võimalus osaleda töötubades", null, null, null, "Muusikaline etteaste" };
             var rnd = new Random();
 
             // Future Events

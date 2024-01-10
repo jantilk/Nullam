@@ -238,7 +238,6 @@ export default function UpdatePersonParticipant() {
                 </Stack>
                 <Row>
                   <Col sm={6}>
-                    {/*TODO: navigate back*/}
                     <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100"}>
                       Tagasi
                     </Button>
