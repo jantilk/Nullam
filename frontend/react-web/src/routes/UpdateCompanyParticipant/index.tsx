@@ -209,7 +209,7 @@ export default function UpdateCompanyParticipant() {
                     </Col>
                   </Form.Group>
                   <Form.Group controlId="additionalInfo" as={Row}>
-                    <Form.Label column md={8}>Lisainfo: (maksimaalselt 5000 tähemärki)</Form.Label>
+                    <Form.Label column md={8}>Lisainfo:</Form.Label>
                     <Col md={16}>
                       <Controller
                         name="AdditionalInfo"
