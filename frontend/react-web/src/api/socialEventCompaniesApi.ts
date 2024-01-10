@@ -57,6 +57,10 @@ const socialEventCompaniesApi = {
     baseApi
       .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/companies/${companyId}`, formData)
       .then(getData),
+  delete: (socialEventId: string, companyId: string) =>
+    baseApi
+      .delete<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/companies/${companyId}`)
+      .then(getData)
 }
 
 export default socialEventCompaniesApi;

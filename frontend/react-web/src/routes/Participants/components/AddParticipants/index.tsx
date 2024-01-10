@@ -1,9 +1,10 @@
 import {Col, Form, Row} from "react-bootstrap";
 import "./index.scss";
 import {SocialEvent} from "../../../../types/SocialEvent.ts";
-import AddCompanyParticipant from "../AddCompanyParticipant";
-import AddPersonParticipants from "../AddPersonParticipants";
 import {useState} from "react";
+import AddCompanyParticipant from "./components/AddCompanyParticipant";
+import AddPersonParticipants from "./components/AddPersonParticipants";
+import "./index.scss";
 
 interface ComponentProps {
   socialEvent?: SocialEvent;
@@ -11,7 +12,6 @@ interface ComponentProps {
 
 export default function AddParticipants({socialEvent}: ComponentProps) {
   const [participantType, setParticipantType] = useState("person");
-
 
   return (
     <>

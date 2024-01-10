@@ -68,3 +68,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// TODO: why ef db commands run every time, ok? do they?

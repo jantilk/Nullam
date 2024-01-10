@@ -66,37 +66,20 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
     {
         _dbContext.SocialEventCompanies.Update(updatedSocialEventCompany);
         
-        try
+        var result = await _dbContext.SaveChangesAsync();
+        if (result < 0)
         {
-            var result = await _dbContext.SaveChangesAsync();
-            if (result < 0)
-            {
-                throw new DbUpdateException("Update operation failed!");
-            }
-            
-            return result > 0;
+            throw new DbUpdateException($"{nameof(Update)} operation failed.");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            throw;
-        }
+        
+        return result > 0;
     }
     
     public async Task<bool> Delete(SocialEventCompany socialEventCompany)
     {
         _dbContext.SocialEventCompanies.Remove(socialEventCompany);
 
-        try
-        {
-            var result = await _dbContext.SaveChangesAsync();
-            return result > 0;
-        }
-        catch (Exception ex)
-        {
-            // TODO: better error handling
-            // TODO: check elsewhere also
-            Console.WriteLine(ex);
-            throw;
-        }    }
+        var result = await _dbContext.SaveChangesAsync();
+        return result > 0;
+    }
 }

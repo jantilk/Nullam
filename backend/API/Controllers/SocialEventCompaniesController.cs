@@ -21,9 +21,9 @@ public class SocialEventCompaniesController : NullamControllerBase
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetCompaniesBySocialEventId([FromRoute] Guid socialEventId)
+    public async Task<IActionResult> GetBySocialEventId([FromRoute] Guid socialEventId)
     {
-        return HandleOperationResult(await _socialEventCompaniesService.GetCompaniesBySocialEventId(socialEventId));
+        return HandleOperationResult(await _socialEventCompaniesService.GetBySocialEventId(socialEventId));
     }
 
     [HttpGet("{companyId}")]
@@ -38,7 +38,7 @@ public class SocialEventCompaniesController : NullamControllerBase
         return HandleOperationResult(await _socialEventCompaniesService.Update(socialEventId, companyId, request));
     }
     
-    [HttpDelete("{personId:guid}")]
+    [HttpDelete("{companyId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid socialEventId, [FromRoute] Guid companyId)
     {
         return HandleOperationResult(await _socialEventCompaniesService.Delete(socialEventId, companyId));

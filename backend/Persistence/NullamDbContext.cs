@@ -21,8 +21,17 @@ public class NullamDbContext : DbContext
         modelBuilder.Entity<SocialEventPerson>()
             .HasKey(mc => new { mc.SocialEventId, mc.PersonId });
         
-        // TODO
-        // Other entity configurations?
+        modelBuilder.Entity<SocialEventPerson>()
+            .HasOne(sep => sep.SocialEvent)
+            .WithMany(se => se.Persons)
+            .HasForeignKey(sep => sep.SocialEventId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SocialEventCompany>()
+            .HasOne(sec => sec.SocialEvent)
+            .WithMany(se => se.Companies)
+            .HasForeignKey(sec => sec.SocialEventId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         base.OnModelCreating(modelBuilder);
     }

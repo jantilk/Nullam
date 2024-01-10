@@ -30,7 +30,7 @@ export default function AppNavbar() {
             <NavLink to="/" className="nav-link">AVALEHT</NavLink>
           </Nav.Item>
           <Nav.Item>
-            <NavLink to="/add-social-events" className="nav-link">ÜRITUSE LISAMINE</NavLink>
+            <NavLink to="/social-events" className="nav-link" end>ÜRITUSE LISAMINE</NavLink>
           </Nav.Item>
         </Nav>
       </Navbar.Collapse>

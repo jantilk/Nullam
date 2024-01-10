@@ -3,7 +3,7 @@ import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
 import socialEventCompaniesApi, {AddSocialEventCompanyRequest, UpdateSocialEventCompanyRequest} from "../../api/socialEventCompaniesApi.ts";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import queryKeys from "../../api/QueryKeys.ts";
+import queryKeys from "../../api/queryKeys.ts";
 import {useEffect} from "react";
 import {toast} from "sonner";
 
@@ -16,11 +16,17 @@ export default function UpdateCompanyParticipant() {
   const {data: companyData, isLoading} = useQuery({
     queryKey: [queryKeys.GET_COMPANY_BY_ID, eventId, companyId],
     queryFn: () => {
-      return socialEventCompaniesApi.getByCompanyId(eventId, companyId)
+      if (eventId && companyId) {
+        return socialEventCompaniesApi.getByCompanyId(eventId, companyId);
+      }
     },
     select: (response) => {
-      return response.data;
-    }
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
+    enabled: !!eventId
   });
 
   useEffect(() => {

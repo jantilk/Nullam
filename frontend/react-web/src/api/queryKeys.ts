@@ -1,4 +1,4 @@
-enum QueryKeys {
+enum queryKeys {
   FUTURE_SOCIAL_EVENTS = 'futureSocialEvents',
   PAST_SOCIAL_EVENTS = 'pastSocialEvents',
   SOCIAL_EVENT = 'socialEvent',
@@ -8,4 +8,4 @@ enum QueryKeys {
   GET_PERSON_BY_ID = 'getPersonById',
 }
 
-export default QueryKeys;
+export default queryKeys;

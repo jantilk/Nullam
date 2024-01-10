@@ -20,17 +20,41 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         _transactionService = transactionService;
     }
     
-    public async Task<OperationResult<List<GetCompaniesBySocialEventIdResponse>>?> GetCompaniesBySocialEventId(Guid socialEventId)
+    public async Task<OperationResult<bool>> Add(Guid socialEventId, AddSocialEventCompanyRequest request)
+    {
+        try
+        {
+            await _transactionService.BeginTransactionAsync();
+
+            var companyId = Guid.NewGuid();
+            var company = new Company
+            {
+                Id = companyId,
+                CreatedAt = DateTime.Now,
+                Name = request.Name,
+                RegisterCode = request.RegisterCode
+            };
+            
+            await _companyRepository.Add(company);
+            await _socialEventCompaniesRepository.Add(socialEventId, companyId, request);
+            
+            await _transactionService.CommitTransactionAsync();
+            return OperationResult<bool>.Success(true); 
+        }
+        catch (Exception ex)
+        {
+            await _transactionService.RollbackTransactionAsync();
+
+            return OperationResult<bool>.Failure($"{nameof(Add)} operation failed. {ex}");
+        }
+    }
+    
+    public async Task<OperationResult<List<GetCompaniesBySocialEventIdResponse>>> GetBySocialEventId(Guid socialEventId)
     {
         try
         {
             var socialEventCompanies = await _socialEventCompaniesRepository.GetCompaniesBySocialEventId(socialEventId);
             
-            if (socialEventCompanies.Count == 0)
-            {
-                return null;
-            }
-
             var response = socialEventCompanies
                 .Select(x => new GetCompaniesBySocialEventIdResponse
                 {
@@ -45,7 +69,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         }
         catch (Exception ex)
         {
-            return OperationResult<List<GetCompaniesBySocialEventIdResponse>>.FailureWithLog($"Failed to get social event companies! {ex.Message}");
+            return OperationResult<List<GetCompaniesBySocialEventIdResponse>>.FailureWithLog($"{nameof(GetBySocialEventId)} operation failed. {ex.Message}");
         }
     }
     
@@ -80,37 +104,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         }
         catch (Exception ex)
         {
-            return OperationResult<GetSocialEventCompanyResponse>.Failure($"Failed to add social event company! {ex}");
-        }
-    }
-
-    public async Task<OperationResult<bool>> Add(Guid socialEventId, AddSocialEventCompanyRequest request)
-    {
-        try
-        {
-            await _transactionService.BeginTransactionAsync();
-
-            var companyId = Guid.NewGuid();
-            var company = new Company
-            {
-                Id = companyId,
-                CreatedAt = DateTime.Now,
-                Name = request.Name,
-                RegisterCode = request.RegisterCode
-            };
-            
-            await _companyRepository.Add(company);
-            await _socialEventCompaniesRepository.Add(socialEventId, companyId, request);
-            
-            await _transactionService.CommitTransactionAsync();
-            return OperationResult<bool>.Success(true); 
-        }
-        catch (Exception ex)
-        {
-            // TODO: how to check here if current transaction is null
-            await _transactionService.RollbackTransactionAsync();
-
-            return OperationResult<bool>.Failure($"Failed to add social event company! {ex}");
+            return OperationResult<GetSocialEventCompanyResponse>.Failure($"{nameof(GetByCompanyId)} operation failed. {ex}");
         }
     }
 
@@ -148,7 +142,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         {
             await _transactionService.RollbackTransactionAsync();
             
-            return OperationResult<bool>.Failure($"Failed to update social event company! {ex}");
+            return OperationResult<bool>.Failure($"{nameof(Update)} operation failed. {ex}");
         }
     }
 
@@ -160,13 +154,13 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
 
             if (socialEventCompany == null)
             {
-                return OperationResult<bool>.Failure("Failed to delete, social event company does not exist!");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Social event company not found");
             }
             
             var result = await _socialEventCompaniesRepository.Delete(socialEventCompany);
 
             if (!result) {
-                return OperationResult<bool>.Failure("Failed to Delete social event company");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed.");
             }
             
             return OperationResult<bool>.Success(result);
@@ -175,5 +169,6 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         {
             Console.WriteLine(ex);
             throw;
-        }    }
+        }
+    }
 }

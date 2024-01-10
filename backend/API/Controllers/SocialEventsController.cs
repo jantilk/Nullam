@@ -15,6 +15,12 @@ public class SocialEventsController : NullamControllerBase
         _socialEventsService = socialEventsService;
     }
     
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] AddSocialEventRequest request)
+    {
+        return HandleOperationResult(await _socialEventsService.Add(request));
+    }
+    
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] SortingOption? orderBy, [FromQuery] FilterDto? filter)
     {
@@ -27,13 +33,6 @@ public class SocialEventsController : NullamControllerBase
         return HandleOperationResult(await _socialEventsService.GetById(id));
     }
     
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] AddSocialEventRequest request)
-    {
-        return HandleOperationResult(await _socialEventsService.Add(request));
-    }
-    
-    // TODO: why ef db commands run every time, ok?
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateSocialEventRequest request)
     {

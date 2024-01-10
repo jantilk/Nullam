@@ -13,8 +13,7 @@ export default function App() {
       <RootLayout>
         <Routes>
           <Route path="/" element={<Home/>}/>
-          {/*TODO: fix path to pattern*/}
-          <Route path="/add-social-events" element={<AddSocialEvent/>}/>
+          <Route path="/social-events" element={<AddSocialEvent/>}/>
           <Route path="/social-events/:eventId/participants" element={<Participants/>}/>
           <Route path="/social-events/:eventId/participants/companies/:companyId" element={<UpdateCompanyParticipant/>}/>
           <Route path="/social-events/:eventId/participants/persons/:personId" element={<UpdatePersonParticipant/>}/>

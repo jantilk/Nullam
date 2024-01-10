@@ -44,24 +44,18 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         }
         catch (Exception ex)
         {
-            // TODO: how to check here if current transaction is null
             await _transactionService.RollbackTransactionAsync();
 
-            return OperationResult<bool>.Failure($"Failed to add social event person! {ex}");
+            return OperationResult<bool>.Failure($"{nameof(Add)} operation failed. {ex}");
         }
     }
 
-    public async Task<OperationResult<List<GetPersonsBySocialEventIdResponse>>?> GetBySocialEventId(Guid socialEventId)
+    public async Task<OperationResult<List<GetPersonsBySocialEventIdResponse>>> GetBySocialEventId(Guid socialEventId)
     {
         try
         {
             var socialEventPersons = await _socialEventPersonsRepository.GetBySocialEventId(socialEventId);
             
-            if (socialEventPersons.Count == 0)
-            {
-                return null;
-            }
-
             var response = socialEventPersons
                 .Select(x => new GetPersonsBySocialEventIdResponse
                 {
@@ -79,7 +73,7 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         }
         catch (Exception ex)
         {
-            return OperationResult<List<GetPersonsBySocialEventIdResponse>>.FailureWithLog($"Failed to get social event persons! {ex.Message}");
+            return OperationResult<List<GetPersonsBySocialEventIdResponse>>.Failure($"{nameof(GetBySocialEventId)} operation failed. {ex}");
         }
     }
 
@@ -114,7 +108,7 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         }
         catch (Exception ex)
         {
-            return OperationResult<GetSocialEventPersonResponse>.Failure($"Failed to add social event person! {ex}");
+            return OperationResult<GetSocialEventPersonResponse>.Failure($"{nameof(GetByPersonId)} operation failed. {ex}");
         }
     }
 
@@ -152,7 +146,7 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         {
             await _transactionService.RollbackTransactionAsync();
             
-            return OperationResult<bool>.Failure($"Failed to update social event company! {ex}");
+            return OperationResult<bool>.Failure($"{nameof(Update)} operation failed. {ex}");
         }
     }
 
@@ -164,21 +158,20 @@ public class SocialEventPersonsService : ISocialEventPersonsService
 
             if (socialEventPerson == null)
             {
-                return OperationResult<bool>.Failure("Failed to delete, social event person does not exist!");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Social event person not found");
             }
             
             var result = await _socialEventPersonsRepository.Delete(socialEventPerson);
 
             if (!result) {
-                return OperationResult<bool>.Failure("Failed to Delete social event person");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed.");
             }
             
             return OperationResult<bool>.Success(result);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
-            throw;
+            return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. {ex}");
         }
     }
 }

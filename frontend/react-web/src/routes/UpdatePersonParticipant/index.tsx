@@ -1,7 +1,7 @@
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import queryKeys from "../../api/QueryKeys.ts";
+import queryKeys from "../../api/queryKeys.ts";
 import {useEffect} from "react";
 import {toast} from "sonner";
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
@@ -19,11 +19,17 @@ export default function UpdatePersonParticipant() {
   const {data: personData, isLoading} = useQuery({
     queryKey: [queryKeys.GET_PERSON_BY_ID, eventId, personId],
     queryFn: () => {
-      return socialEventPersonsApi.getByPersonId(eventId, personId)
+      if (eventId && personId) {
+        return socialEventPersonsApi.getByPersonId(eventId, personId)
+      }
     },
     select: (response) => {
-      return response.data;
-    }
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
+    enabled: !!eventId
   });
 
   useEffect(() => {

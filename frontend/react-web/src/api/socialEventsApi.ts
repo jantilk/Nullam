@@ -1,7 +1,7 @@
 import {SocialEvent} from "../types/SocialEvent.ts";
-import {SocialEventFormData} from "../routes/AddSocialEvent";
 import axios from "axios";
 import {Response} from "./baseApi.ts";
+import SocialEventFormData from "../types/SocialEventFormData.ts";
 
 // TODO: move this
 export interface FilterDto {
@@ -24,7 +24,7 @@ interface GetSocialEventsParams {
 const socialEventsApi = {
   add: async (data: SocialEventFormData) => {
     try {
-      const response = await fetch("https://localhost:7168/api/v1/social-events", {
+      const response = await fetch("http://localhost:8000/api/v1/social-events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +63,7 @@ const socialEventsApi = {
         }
       }
 
-      const response = await fetch(`https://localhost:7168/api/v1/social-events?${queryParams.toString()}`);
+      const response = await fetch(`http://localhost:8000/api/v1/social-events?${queryParams.toString()}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -75,7 +75,7 @@ const socialEventsApi = {
     }
   },
   getById: async (id: string | undefined): Promise<SocialEvent> => {
-    const result = await axios.get<Response<SocialEvent>>(`https://localhost:7168/api/v1/social-events/${id}`);
+    const result = await axios.get<Response<SocialEvent>>(`http://localhost:8000/api/v1/social-events/${id}`);
     return result.data.data;
   },
   // update: async () => {
@@ -83,7 +83,7 @@ const socialEventsApi = {
   // }
   delete: async (id: string): Promise<boolean> => {
     try {
-      const response = await fetch(`https://localhost:7168/api/v1/social-events/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/social-events/${id}`, {
         method: "DELETE",
       });
 

@@ -9,20 +9,21 @@ import {
   Modal,
   Button
 } from 'react-bootstrap';
-import {useQuery} from "@tanstack/react-query";
+import {InvalidateQueryFilters, useQuery, useQueryClient} from "@tanstack/react-query";
 import socialEventsApi, {SortingOption} from "../../../../api/socialEventsApi.ts";
 import {NavLink} from "react-router-dom";
-import queryKeys from "../../../../api/QueryKeys.ts";
+import queryKeys from "../../../../api/queryKeys.ts";
 import {ReactNode, useState} from "react";
 import RemoveIcon from '/public/remove.svg?react'
 import {toast} from "sonner";
+import {format} from 'date-fns';
 
 interface AppCardProps {
   children?: ReactNode;
   title: string;
 }
 
-export interface CurrentEvent {
+interface CurrentEvent {
   id: string | null;
   name: string;
 }
@@ -41,6 +42,7 @@ const SocialEventCard = ({children, title}: AppCardProps) => {
 export default function SocialEventsSection() {
   const [showModal, setShowModal] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<CurrentEvent>({id: null, name: ""});
+  const queryClient = useQueryClient();
 
   const handleDelete = async () => {
     if (currentEvent.id) {
@@ -48,6 +50,7 @@ export default function SocialEventsSection() {
         await socialEventsApi.delete(currentEvent.id);
         toast.success("üritus kustutatud");
         setShowModal(false);
+        await queryClient.invalidateQueries([queryKeys.FUTURE_SOCIAL_EVENTS] as InvalidateQueryFilters);
       } catch (error) {
         toast.error("ürituse kustutamine ebaõnnestus");
       }
@@ -97,7 +100,7 @@ export default function SocialEventsSection() {
   });
 
   if (futureError || pastError) {
-    toast.error("Server error");
+    toast.error("Midagi läks valesti...");
   }
 
   return (
@@ -112,9 +115,9 @@ export default function SocialEventsSection() {
                   <th scope={"row"} className={"px-0"}>{index + 1}.</th>
                   <td>{x.name}</td>
                   {/*TODO: fix formatting*/}
-                  <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
+                  <td className={"col-4"}>{format(new Date(x.date), 'dd.MM.yyyy')}</td>
                   <td className={"col-3"}>
-                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`}>
+                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`} end>
                       OSAVÕTJAD
                     </NavLink>
                   </td>
@@ -133,7 +136,7 @@ export default function SocialEventsSection() {
             </Table>
           </CardBody>
           <CardFooter className={"d-flex justify-content-start bg-light"}>
-            <NavLink className={"nav nav-link p-0"} to={"add-social-events"}>LISA ÜRITUS</NavLink>
+            <NavLink className={"nav nav-link p-0"} to={"social-events"}>LISA ÜRITUS</NavLink>
           </CardFooter>
         </SocialEventCard>
       </Col>
@@ -148,7 +151,7 @@ export default function SocialEventsSection() {
                   <td>{x.name}</td>
                   <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
                   <td className={"col-3"}>
-                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}`}>OSAVÕTJAD</NavLink>
+                    <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`} end>OSAVÕTJAD</NavLink>
                   </td>
                 </tr>
               ))}

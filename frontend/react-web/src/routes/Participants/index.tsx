@@ -1,28 +1,40 @@
 import {Button, Col, Container, Modal, Row, Stack, Table} from "react-bootstrap";
 import {NavLink, useParams} from "react-router-dom";
-import {InvalidateQueryFilters, useQuery, useQueryClient} from "@tanstack/react-query";
+import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import socialEventsApi from "../../api/socialEventsApi.ts";
 import {toast} from "sonner";
-import queryKeys from "../../api/QueryKeys.ts";
+import queryKeys from "../../api/queryKeys.ts";
 import AddParticipants from "./components/AddParticipants";
 import {format} from "date-fns";
 import socialEventCompaniesApi from "../../api/socialEventCompaniesApi.ts";
 import {AxiosError, HttpStatusCode} from "axios";
 import socialEventPersonsApi from "../../api/socialEventPersonsApi.ts";
 import {useMemo, useState} from "react";
-import {CurrentEvent} from "../Home/components/SocialEventsSection";
-import QueryKeys from "../../api/QueryKeys.ts";
+
+export interface CurrentParticipant {
+  id: string | null;
+  name: string;
+  type: ParticipantType
+}
+
+type ParticipantType = 'company' | 'person' | null
 
 export default function Participants() {
   const {eventId} = useParams();
-  const [currentEvent, setCurrentEvent] = useState<CurrentEvent>({id: null, name: ""});
+  const [currentParticipant, setCurrentParticipant] = useState<CurrentParticipant>({id: null, name: "", type: null});
   const [showModal, setShowModal] = useState(false);
   const queryClient = useQueryClient();
+  const isEventInFuture = () => {
+    if (!socialEvent?.date) {
+      return false;
+    }
+    return new Date(socialEvent.date) > new Date();
+  };
 
   const ConfirmationModal = () => (
     <Modal show={showModal} onHide={() => setShowModal(false)}>
       <Modal.Header closeButton>
-        <Modal.Title>Kustuta "<strong>{currentEvent.name}</strong>"</Modal.Title>
+        <Modal.Title>Kustuta "<strong>{currentParticipant.name}</strong>"</Modal.Title>
       </Modal.Header>
       <Modal.Body>Oled kindel, et soovid osalejat kustutada?</Modal.Body>
       <Modal.Footer>
@@ -84,50 +96,91 @@ export default function Participants() {
   }
 
   const combinedParticipants = useMemo(() => {
-    const companyData = companies?.data?.map(company => ({
+    const companyParticipants = companies?.data?.map(company => ({
       id: company.id,
       createdAt: company.createdAt,
-      primaryText: company.name, // Company name
-      secondaryText: company.registerCode, // Company registerCode
-      participantType: 'company'
+      primaryText: company.name,
+      secondaryText: company.registerCode,
+      participantType: 'company' as const
     })) ?? [];
 
-    const personData = persons?.data?.map(person => ({
+    const personParticipants = persons?.data?.map(person => ({
       id: person.id,
       createdAt: person.createdAt,
-      primaryText: `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim(), // Person's name
-      secondaryText: person.idCode, // Person's idCode
-      participantType: 'person'
+      primaryText: `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim(),
+      secondaryText: person.idCode,
+      participantType: 'person' as const
     })) ?? [];
 
-    return [...companyData, ...personData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return [...companyParticipants, ...personParticipants]
+      .sort((a, b) => {
+        // Convert dates to timestamps. Invalid dates become NaN, which is handled in the comparison
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+
+        // Handle NaN values (invalid dates)
+        if (!dateA) return 1;
+        if (!dateB) return -1;
+
+        return dateB - dateA;
+      });
   }, [companies, persons]);
 
-  const openModal = (eventId: string, eventName: string) => {
-    setCurrentEvent({id: eventId, name: eventName});
+  const openModal = (participantId: string, participantName: string, participantType: ParticipantType) => {
+    console.log(participantType)
+    setCurrentParticipant({id: participantId, name: participantName, type: participantType});
     setShowModal(true);
   };
 
-  const handleDelete = async () => {
-    if (currentEvent.id) {
-      try {
-        await socialEventPersonsApi.delete(eventId, currentEvent.id);
-        toast.success("Osaleja kustutatud");
-      } catch (error) {
-        toast.error("ürituse kustutamine ebaõnnestus");
-      } finally {
-        setShowModal(false);
-        await queryClient.invalidateQueries([QueryKeys.PERSONS_BY_SOCIAL_EVENT_ID, QueryKeys.COMPANIES_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
-      }
+  const deleteParticipantMutation = useMutation({
+    mutationFn: ({eventId, participantId}: { eventId: string, participantId: string }) => {
+      return socialEventPersonsApi.delete(eventId, participantId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([queryKeys.PERSONS_BY_SOCIAL_EVENT_ID, socialEvent?.id] as InvalidateQueryFilters);
+      toast.success("Osaleja kustutatud");
+    },
+    onError: () => {
+      toast.error("ürituse kustutamine ebaõnnestus");
     }
-  };
+  });
+
+  const deleteCompanyParticipantMutation = useMutation({
+    mutationFn: ({eventId, participantId}: { eventId: string, participantId: string }) => {
+      return socialEventCompaniesApi.delete(eventId, participantId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([queryKeys.COMPANIES_BY_SOCIAL_EVENT_ID, socialEvent?.id] as InvalidateQueryFilters);
+      toast.success("Osaleja kustutatud");
+    },
+    onError: () => {
+      toast.error("ürituse kustutamine ebaõnnestus");
+    }
+  });
+
+  const handleDelete = () => {
+    if (!socialEvent?.id || !currentParticipant.id) {
+      toast.error('Something went wrong');
+      setShowModal(false);
+      return;
+    }
+
+    if (currentParticipant.type === 'person') {
+      deleteParticipantMutation.mutate({eventId: socialEvent?.id, participantId: currentParticipant.id});
+    }
+
+    if (currentParticipant.type === 'company') {
+      deleteCompanyParticipantMutation.mutate({eventId: socialEvent?.id, participantId: currentParticipant.id});
+    }
+
+    setShowModal(false);
+  }
+
 
   return (
     <Container className={"shadow-sm bg-white"}>
       <Row>
-        <Col className={"bg-primary d-flex align-items-center justify-content-center"} md={6}>
-          <h1 className={"text-white"}>Osavõtjad</h1>
-        </Col>
+        <Col className={"bg-primary d-flex align-items-center justify-content-center"} md={6}><h1 className={"text-white"}>Osavõtjad</h1></Col>
         <Col className={"background-image-col"}/>
       </Row>
       <Row className={"justify-content-center"}>
@@ -138,9 +191,7 @@ export default function Participants() {
               <Stack gap={3}>
                 <Row>
                   <Col sm={24} md={8}>Ürituse nimi:</Col>
-                  <Col md={16}>
-                    {socialEvent?.name}
-                  </Col>
+                  <Col md={16}>{socialEvent?.name}</Col>
                 </Row>
                 <Row>
                   <Col sm={24} md={8}>Toimumise aeg:</Col>
@@ -150,15 +201,11 @@ export default function Participants() {
                 </Row>
                 <Row>
                   <Col sm={24} md={8}>Koht:</Col>
-                  <Col md={16}>
-                    {socialEvent?.location}
-                  </Col>
+                  <Col md={16}>{socialEvent?.location}</Col>
                 </Row>
                 <Row>
                   <Col>
-                    <Row>
-                      <Col sm={24} md={8}>Osavõtjad:</Col>
-                    </Row>
+                    <Row><Col sm={24} md={8}>Osavõtjad:</Col></Row>
                     {!isCompaniesLoading && !isPersonsLoading && (
                       <Row className={"mb-5"}>
                         <Col xl={{span: 16, offset: 8}}>
@@ -176,8 +223,11 @@ export default function Participants() {
                                   </NavLink>
                                 </td>
                                 <td className={"table-col-min-width"}>
-                                  <Button type={"button"} className={"btn btn-link py-0 d-flex"}
-                                          onClick={() => openModal(participant.id, participant.primaryText)}>
+                                  <Button
+                                    type={"button"}
+                                    className={"btn btn-link py-0 d-flex"}
+                                    onClick={() => openModal(participant.id, participant.primaryText, participant.participantType)}
+                                  >
                                     KUSTUTA
                                   </Button>
                                 </td>
@@ -188,7 +238,7 @@ export default function Participants() {
                         </Col>
                       </Row>
                     )}
-                    <AddParticipants socialEvent={socialEvent}/>
+                    {isEventInFuture() && <AddParticipants socialEvent={socialEvent}/>}
                   </Col>
                 </Row>
               </Stack>

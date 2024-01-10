@@ -16,6 +16,30 @@ public class SocialEventsService : ISocialEventsService
         _socialEventsRepository = socialEventsRepository;
     }
     
+    public async Task<OperationResult<bool>> Add(AddSocialEventRequest request)
+    {
+        try
+        {
+            var socialEvent = new SocialEvent
+            {
+                Id = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                Name = request.Name,
+                Date = DateTime.Parse(request.Date),
+                Location = request.Location,
+                AdditionalInfo = request.AdditionalInfo,
+            };
+
+            await _socialEventsRepository.Add(socialEvent);
+
+            return OperationResult<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<bool>.Failure($"Get operation failed. {ex.Message}");
+        }   
+    }
+    
     public async Task<OperationResult<List<GetSocialEventsResponse>>?> Get(SortingOption? orderBy, FilterDto? filter)
     {
         try
@@ -27,7 +51,7 @@ public class SocialEventsService : ISocialEventsService
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Date = x.Date
+                    Date = x.Date.ToLocalTime()
                 })
                 .ToList();
             
@@ -35,7 +59,7 @@ public class SocialEventsService : ISocialEventsService
         }
         catch (Exception ex)
         {
-            return OperationResult<List<GetSocialEventsResponse>>.FailureWithLog($"Failed to get social events! {ex.Message}");
+            return OperationResult<List<GetSocialEventsResponse>>.FailureWithLog($"Get operation failed. {ex.Message}");
         }
     }
 
@@ -54,7 +78,7 @@ public class SocialEventsService : ISocialEventsService
             {
                 Id = socialEvent.Id,
                 Name = socialEvent.Name,
-                Date = socialEvent.Date,
+                Date = socialEvent.Date.ToLocalTime(),
                 Location = socialEvent.Location
             };
             
@@ -62,46 +86,12 @@ public class SocialEventsService : ISocialEventsService
         }
         catch (Exception ex)
         {
-            // TODO: maybe dont return ex.message here?
-            return OperationResult<GetSocialEventByIdResponse>.Failure($"Failed to get social event! {ex.Message}");
+            return OperationResult<GetSocialEventByIdResponse>.Failure($"Get operation failed. {ex.Message}");
         }
-    }
-
-    public async Task<OperationResult<AddSocialEventResponse>?> Add(AddSocialEventRequest request)
-    {
-        try
-        {
-            var socialEvent = new SocialEvent
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.Now,
-                Name = request.Name,
-                Date = DateTime.Parse(request.Date),
-                Location = request.Location,
-                AdditionalInfo = request.AdditionalInfo,
-            };
-
-            var result = await _socialEventsRepository.Add(socialEvent);
-
-            var response = new AddSocialEventResponse()
-            {
-                Id = result.Id,
-                Date = result.Date,
-                Location = result.Location,
-                AdditionalInfo = result.AdditionalInfo
-            };
-            
-            return OperationResult<AddSocialEventResponse>.Success(response);
-        }
-        catch (Exception ex)
-        {
-            return OperationResult<AddSocialEventResponse>.Failure($"Failed add social event! {ex.Message}");
-        }   
     }
 
     public async Task<OperationResult<bool>> Update(Guid id, UpdateSocialEventRequest request)
     {
-        // TODO: check all over the code that no meetup exists
         try
         {
             var socialEvent = await _socialEventsRepository.GetById(id);
@@ -122,8 +112,7 @@ public class SocialEventsService : ISocialEventsService
         }
         catch (Exception ex)
         {
-            // TODO: maybe change texts to "Update operation failed"
-            return OperationResult<bool>.Failure($"Failed to update social event! {ex.Message}");
+            return OperationResult<bool>.Failure($"Update operation failed! {ex.Message}");
         }
     }
 
@@ -135,20 +124,20 @@ public class SocialEventsService : ISocialEventsService
             
             if (socialEvent == null)
             {
-                return OperationResult<bool>.Failure("Failed to delete, social event does not exist!");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Social event not found.");
             }
 
             var result = await _socialEventsRepository.Delete(socialEvent);
             
             if (!result) {
-                return OperationResult<bool>.Failure("Failed to Delete social event");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed.");
             }
 
             return OperationResult<bool>.Success(result);
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"Failed to delete social event! {ex.Message}");
+            return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. {ex.Message}");
         }
     }
 }

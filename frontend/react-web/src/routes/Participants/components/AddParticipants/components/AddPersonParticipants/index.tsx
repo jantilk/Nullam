@@ -1,28 +1,29 @@
-import {Button, Col, Form, Row, Stack} from "react-bootstrap";
 import {Controller, useForm} from "react-hook-form";
-import socialEventCompaniesApi, {AddSocialEventCompanyRequest, PaymentType} from "../../../../api/socialEventCompaniesApi.ts";
 import {useNavigate} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQueryClient} from "@tanstack/react-query";
 import {toast} from "sonner";
-import {SocialEvent} from "../../../../types/SocialEvent.ts";
-import QueryKeys from "../../../../api/QueryKeys.ts";
+import {Button, Col, Form, Row, Stack} from "react-bootstrap";
+import {SocialEvent} from "../../../../../../types/SocialEvent.ts";
+import socialEventPersonsApi, {AddSocialEventPersonRequest} from "../../../../../../api/socialEventPersonsApi.ts";
+import queryKeys from "../../../../../../api/queryKeys.ts";
+import {PaymentType} from "../../../../../../api/baseApi.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent;
 }
 
-export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
-  const {control, handleSubmit, reset} = useForm<AddSocialEventCompanyRequest>();
+export default function AddPersonParticipants({socialEvent}: ComponentProps) {
+  const {control, handleSubmit, reset} = useForm<AddSocialEventPersonRequest>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({socialEventId, formData}: { socialEventId: string, formData: AddSocialEventCompanyRequest }) => {
-      return socialEventCompaniesApi.add(socialEventId, formData);
+    mutationFn: ({socialEventId, formData}: { socialEventId: string, formData: AddSocialEventPersonRequest }) => {
+      return socialEventPersonsApi.add(socialEventId, formData);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries([QueryKeys.COMPANIES_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
-      toast.success('Ettevõtte lisamine õnnestus!');
+      await queryClient.invalidateQueries([queryKeys.PERSONS_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
+      toast.success('Isiku lisamine õnnestus!');
       reset();
     },
     onError: () => {
@@ -30,7 +31,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
     }
   })
 
-  const onSubmit = async (formData: AddSocialEventCompanyRequest) => {
+  const onSubmit = async (formData: AddSocialEventPersonRequest) => {
     if (!socialEvent?.id) {
       toast.error('Social event ID is missing!');
       return;
@@ -42,11 +43,11 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack gap={4} className={"mt-3 mb-5"}>
-        <Form.Group controlId="name" as={Row}>
-          <Form.Label column sm={24} md={8}>Nimi:*</Form.Label>
+        <Form.Group controlId="firstName" as={Row}>
+          <Form.Label column sm={24} md={8}>Eesnimi:*</Form.Label>
           <Col md={16}>
             <Controller
-              name="Name"
+              name="FirstName"
               control={control}
               defaultValue=""
               rules={{required: "kohustuslik"}}
@@ -66,11 +67,11 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             />
           </Col>
         </Form.Group>
-        <Form.Group controlId="registerCode" as={Row}>
-          <Form.Label column sm={24} md={8}>Registrikood:*</Form.Label>
+        <Form.Group controlId="lastName" as={Row}>
+          <Form.Label column sm={24} md={8}>Perenimi:*</Form.Label>
           <Col md={16}>
             <Controller
-              name="RegisterCode"
+              name="LastName"
               control={control}
               defaultValue=""
               rules={{required: "kohustuslik"}}
@@ -90,28 +91,22 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             />
           </Col>
         </Form.Group>
-        <Form.Group controlId="numberOfParticipants" as={Row}>
-          <Form.Label column md={8}>Osavõtjate arv:*</Form.Label>
+        <Form.Group controlId="idCode" as={Row}>
+          <Form.Label column sm={24} md={8}>Isikukood:*</Form.Label>
           <Col md={16}>
             <Controller
-              name="NumberOfParticipants"
+              name="IdCode"
               control={control}
-              defaultValue={0}
-              rules={{
-                required: "kohustuslik",
-                min: {
-                  value: 1,
-                  message: "vähemalt 1 osaleja"
-                }
-              }}
+              defaultValue=""
+              rules={{required: "kohustuslik"}}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
-                    type="number" {...field}
                     className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                    type="text" {...field}
                   />
                   {fieldState.error && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback"> {/* Use div for error message */}
                       {fieldState.error.message}
                     </div>
                   )}
