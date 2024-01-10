@@ -10,6 +10,7 @@ import {startOfDay} from "date-fns";
 import {toast} from "sonner";
 import SocialEventFormData from "../../types/SocialEventFormData.ts";
 import socialEventsApi from "../../api/socialEventsApi.ts";
+import {ChangeEvent, useState} from "react";
 
 export default function AddSocialEvent() {
   const navigate = useNavigate();
@@ -17,9 +18,6 @@ export default function AddSocialEvent() {
   const queryClient = useQueryClient();
 
   const onSubmit = async (data: SocialEventFormData) => {
-    console.log('data')
-    console.log(data)
-
     try {
       await socialEventsApi.add(data);
       navigate("/");
@@ -28,6 +26,11 @@ export default function AddSocialEvent() {
     } catch (er) {
       toast.error('Midagi läks valesti!');
     }
+  };
+
+  const [charCount, setCharCount] = useState(0);
+  const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setCharCount(event.target.value.length);
   };
 
   return (
@@ -56,7 +59,13 @@ export default function AddSocialEvent() {
                         name="Name"
                         control={control}
                         defaultValue=""
-                        rules={{required: "kohustuslik"}}
+                        rules={{
+                          required: "kohustuslik",
+                          maxLength: {
+                            value: 250,
+                            message: "Kuni 250 tähemärki"
+                          },
+                        }}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -64,7 +73,7 @@ export default function AddSocialEvent() {
                               type="text" {...field}
                             />
                             {fieldState.error && (
-                              <div className="invalid-feedback"> {/* Use div for error message */}
+                              <div className="invalid-feedback">
                                 {fieldState.error.message}
                               </div>
                             )}
@@ -124,7 +133,13 @@ export default function AddSocialEvent() {
                         name="Location"
                         control={control}
                         defaultValue=""
-                        rules={{required: "kohustuslik"}}
+                        rules={{
+                          required: "kohustuslik",
+                          maxLength: {
+                            value: 250,
+                            message: "Kuni 250 tähemärki"
+                          },
+                        }}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -132,7 +147,7 @@ export default function AddSocialEvent() {
                               className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
                             />
                             {fieldState.error && (
-                              <div className="invalid-feedback"> {/* Use div for error message */}
+                              <div className="invalid-feedback">
                                 {fieldState.error.message}
                               </div>
                             )}
@@ -142,14 +157,37 @@ export default function AddSocialEvent() {
                     </Col>
                   </Form.Group>
                   <Form.Group controlId="eventInfo" as={Row}>
-                    <Form.Label column md={8}>Lisainfo: (maksimaalselt 1000 tähemärki)</Form.Label>
+                    <Form.Label column md={8}>Lisainfo:</Form.Label>
                     <Col md={16}>
                       <Controller
                         name="AdditionalInfo"
                         control={control}
                         defaultValue=""
-                        render={({field}) => (
-                          <Form.Control as={"textarea"} rows={4} maxLength={1000} {...field} />
+                        rules={{
+                          maxLength: {value: 1000, message: 'Maksimaalselt 1000 tähemärki'}
+                        }}
+                        render={({field, fieldState}) => (
+                          <>
+                            <Form.Control
+                              as={"textarea"}
+                              rows={4}
+                              maxLength={1000}
+                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleTextChange(e);
+                              }}
+                            />
+                            <div className="text-count">
+                              {charCount}/5000
+                            </div>
+                            {fieldState.error && (
+                              <div className="invalid-feedback">
+                                {fieldState.error.message}
+                              </div>
+                            )}
+                          </>
                         )}
                       />
                     </Col>

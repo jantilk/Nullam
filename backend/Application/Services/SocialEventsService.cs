@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Globalization;
 using Application.Common;
 using Application.DTOs;
 using Application.DTOs.Requests;
@@ -18,12 +20,15 @@ public class SocialEventsService : ISocialEventsService
     
     public async Task<OperationResult<bool>> Add(AddSocialEventRequest request)
     {
+        Console.WriteLine(request.Date.Kind);
+        Console.WriteLine(request.Date.ToString(CultureInfo.InvariantCulture));
+        
         try
         {
             var socialEvent = new SocialEvent
             {
                 Id = Guid.NewGuid(),
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 Name = request.Name,
                 Date = request.Date,
                 Location = request.Location,
@@ -69,10 +74,13 @@ public class SocialEventsService : ISocialEventsService
         {
             var socialEvent = await _socialEventsRepository.GetById(id);
 
+            
             if (socialEvent == null)
             {
                 return null;
             }
+            Console.WriteLine(socialEvent.Date.Kind);
+            Console.WriteLine(socialEvent.Date.ToString(CultureInfo.InvariantCulture));
 
             var response = new GetSocialEventByIdResponse()
             {

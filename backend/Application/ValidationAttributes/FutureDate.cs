@@ -18,7 +18,7 @@ namespace Application.ValidationAttributes
                 memberNames.Add(context.MemberName);
             }
 
-            if (futureDate < DateTime.Now)
+            if (futureDate < DateTime.UtcNow)
             {
                 return new ValidationResult("This must be a date in the future", memberNames);
             }

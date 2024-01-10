@@ -12,7 +12,7 @@ import {
 import {InvalidateQueryFilters, useQuery, useQueryClient} from "@tanstack/react-query";
 import {NavLink} from "react-router-dom";
 import queryKeys from "../../../../api/queryKeys.ts";
-import {ReactNode, useEffect, useState} from "react";
+import {ReactNode, useState} from "react";
 import RemoveIcon from '/public/remove.svg?react'
 import {toast} from "sonner";
 import {format} from 'date-fns';
@@ -95,11 +95,6 @@ export default function SocialEventsSection() {
     },
   });
 
-  useEffect(() => {
-    console.log('futureSocialEvents')
-    console.log(futureSocialEvents)
-  }, []);
-
   const {data: pastSocialEvents, error: pastError} = useQuery({
     queryKey: [queryKeys.PAST_SOCIAL_EVENTS],
     queryFn: () => {
@@ -166,7 +161,7 @@ export default function SocialEventsSection() {
                 <tr key={x.id}>
                   <th scope={"row"} className={"text-end px-0"}>{index + 1}.</th>
                   <td>{x.name}</td>
-                  <td className={"col-4"}>{new Date(x.date).toLocaleDateString()}</td>
+                  <td className={"col-4"}>{format(new Date(x.date), 'dd.MM.yyyy')}</td>
                   <td className={"col-3"}>
                     <NavLink className={"nav nav-link p-0"} to={`/social-events/${x.id}/participants`} end>OSAVÕTJAD</NavLink>
                   </td>

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using API;
 using Application.Interfaces;
 using Application.Services;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        // options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
