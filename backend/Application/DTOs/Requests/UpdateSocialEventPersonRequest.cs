@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Application.ValidationAttributes;
+using Domain.Entities;
 using Domain.Enums;
 using Domain.ValidationAttributes;
 
@@ -16,8 +17,9 @@ public class UpdateSocialEventPersonRequest
     [Required]
     [EstonianIdCode]
     public required string IdCode { get; set; }
+
     [Required]
-    public required PaymentType PaymentType { get; set; }
+    public required Guid PaymentTypeId { get; set; }
     [MaxLength(1500)]
     public string? AdditionalInfo { get; set; }
 }

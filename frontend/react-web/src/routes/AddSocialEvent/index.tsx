@@ -42,7 +42,7 @@ export default function AddSocialEvent() {
         <Col className={"background-image-col"}/>
       </Row>
       <Row className={"justify-content-center"}>
-        <Col sm={24} md={16} lg={10} className={"p-4"}>
+        <Col sm={24} md={16} lg={12} className={"p-4"}>
           <Row>
             <Col>
               <h2 className={"text-primary"}>Ürituse lisamine</h2>

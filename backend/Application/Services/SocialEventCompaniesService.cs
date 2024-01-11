@@ -12,12 +12,14 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
     private readonly ISocialEventCompaniesRepository _socialEventCompaniesRepository;
     private readonly ICompanyRepository _companyRepository;
     private readonly ITransactionService _transactionService;
+    private readonly IResourceRepository _resourceRepository;
 
-    public SocialEventCompaniesService(ISocialEventCompaniesRepository socialEventCompaniesRepository, ICompanyRepository companyRepository, ITransactionService transactionService)
+    public SocialEventCompaniesService(ISocialEventCompaniesRepository socialEventCompaniesRepository, ICompanyRepository companyRepository, ITransactionService transactionService, IResourceRepository resourceRepository)
     {
         _socialEventCompaniesRepository = socialEventCompaniesRepository;
         _companyRepository = companyRepository;
         _transactionService = transactionService;
+        _resourceRepository = resourceRepository;
     }
     
     public async Task<OperationResult<bool>> Add(Guid socialEventId, AddSocialEventCompanyRequest request)
@@ -124,12 +126,17 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
                 return OperationResult<bool>.Failure("Company not found");
             }
 
+            var paymentType = await _resourceRepository.GetById(request.PaymentTypeId);
+            if (paymentType == null) {
+                return OperationResult<bool>.Failure("PaymentType not found");
+            }
+            
             company.Name = request.Name;
             company.RegisterCode = request.RegisterCode;
             
             await _companyRepository.Update(company);
 
-            socialEventCompany.PaymentType = request.PaymentType;
+            socialEventCompany.PaymentType = paymentType;
             socialEventCompany.NumberOfParticipants = request.NumberOfParticipants;
             socialEventCompany.AdditionalInfo = request.AdditionalInfo;
             

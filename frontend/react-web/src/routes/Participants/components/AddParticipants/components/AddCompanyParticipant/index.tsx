@@ -1,13 +1,13 @@
 import {Button, Col, Form, Row, Stack} from "react-bootstrap";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
-import {InvalidateQueryFilters, useMutation, useQueryClient} from "@tanstack/react-query";
+import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {toast} from "sonner";
 import {SocialEvent} from "../../../../../../types/SocialEvent.ts";
 import queryKeys from "../../../../../../api/queryKeys.ts";
 import socialEventCompaniesApi, {AddSocialEventCompanyRequest} from "../../../../../../api/socialEventCompaniesApi.ts";
-import {PaymentType} from "../../../../../../api/baseApi.ts";
 import {ChangeEvent, useState} from "react";
+import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../../../../api/resourceApi.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
@@ -46,6 +46,16 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
     setCharCount(event.target.value.length);
   };
 
+  const {data: paymentTypes} = useQuery({
+    queryKey: [queryKeys.RESOURCES_BY_TYPE],
+    queryFn: () => {
+      return resourceApi.getByType(resourceTypes.PAYMENT_TYPE)
+    },
+    select: (response) => {
+      return response.success ? response.data : [];
+    }
+  });
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack gap={4} className={"mt-3 mb-5"}>
@@ -65,15 +75,8 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               }}
               render={({field, fieldState}) => (
                 <>
-                  <Form.Control
-                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                    type="text" {...field}
-                  />
-                  {fieldState.error && (
-                    <div className="invalid-feedback">
-                      {fieldState.error.message}
-                    </div>
-                  )}
+                  <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                  {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
             />
@@ -103,15 +106,8 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               }}
               render={({field, fieldState}) => (
                 <>
-                  <Form.Control
-                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                    type="text" {...field}
-                  />
-                  {fieldState.error && (
-                    <div className="invalid-feedback">
-                      {fieldState.error.message}
-                    </div>
-                  )}
+                  <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="number" {...field}/>
+                  {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
             />
@@ -137,39 +133,29 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               }}
               render={({field, fieldState}) => (
                 <>
-                  <Form.Control
-                    type="number" {...field}
-                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                  />
-                  {fieldState.error && (
-                    <div className="invalid-feedback">
-                      {fieldState.error.message}
-                    </div>
-                  )}
+                  <Form.Control type="number" {...field} className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}/>
+                  {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
             />
           </Col>
         </Form.Group>
-        <Form.Group controlId="paymentType" as={Row}>
-          <Form.Label column md={8}>Maksetüüp:*</Form.Label>
+        <Form.Group controlId="paymentTypeId" as={Row}>
+          <Form.Label column md={8}>Makseviis:*</Form.Label>
           <Col md={16}>
             <Controller
-              name="PaymentType"
+              name="PaymentTypeId"
               control={control}
               rules={{required: "Kohustuslik"}}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control as="select" {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>
-                    <option value=""/>
-                    <option value={PaymentType.Cash}>Sularaha</option>
-                    <option value={PaymentType.BankTransaction}>Pangaülekanne</option>
+                    <option/>
+                    {paymentTypes && paymentTypes.map((paymentType: GetResourceByTypeResponse) => (
+                      <option key={paymentType.id} value={paymentType.id}>{paymentType.text}</option>
+                    ))}
                   </Form.Control>
-                  {fieldState.error && (
-                    <div className="invalid-feedback">
-                      {fieldState.error.message}
-                    </div>
-                  )}
+                  {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
             />
@@ -182,9 +168,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               name="AdditionalInfo"
               control={control}
               defaultValue=""
-              rules={{
-                maxLength: {value: 5000, message: 'Maksimaalselt 5000 tähemärki'}
-              }}
+              rules={{maxLength: {value: 5000, message: 'Maksimaalselt 5000 tähemärki'}}}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
@@ -198,12 +182,8 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                       handleTextChange(e);
                     }}
                   />
-                  <div className="text-count justify-content-end d-flex py-1 px-2">
-                    <span>{charCount}/5000</span>
-                  </div>
-                  {fieldState.error && (
-                    <div className="invalid-feedback">{fieldState.error.message}</div>
-                  )}
+                  <div className="text-count justify-content-end d-flex py-1 px-2"><span>{charCount}/5000</span></div>
+                  {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
             />
@@ -212,14 +192,10 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
       </Stack>
       <Row>
         <Col sm={6}>
-          <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100 mb-4 mb-sm-0"}>
-            Tagasi
-          </Button>
+          <Button variant={"secondary"} onClick={() => navigate("/")} className={"w-100 mb-4 mb-sm-0"}>Tagasi</Button>
         </Col>
         <Col sm={6}>
-          <Button variant="primary" type="submit" className={"w-100"}>
-            Salvesta
-          </Button>
+          <Button variant="primary" type="submit" className={"w-100"}>Salvesta</Button>
         </Col>
       </Row>
     </Form>

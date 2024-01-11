@@ -11,4 +11,5 @@ public interface ISocialEventPersonsRepository
     Task<SocialEventPerson?> GetSocialEventPerson(Guid socialEventId, Guid personId);
     Task<bool> Update(SocialEventPerson updatedSocialEventPerson);
     Task<bool> Delete(SocialEventPerson socialEventPerson);
+    Task<List<SocialEventPerson>> GetByResourceId(Guid resourceId);
 }

@@ -1,5 +1,5 @@
 import baseApi, {getData, GetPersonsBySocialEventIdResponse, Response} from "./baseApi.ts";
-import {PaymentType} from "./socialEventCompaniesApi.ts";
+import {GetResourceByTypeResponse} from "./resourceApi.ts";
 
 const baseUrl = '/api/v1/social-events';
 
@@ -7,7 +7,7 @@ export type AddSocialEventPersonRequest = {
   FirstName: string;
   LastName: string;
   IdCode: string;
-  PaymentType: PaymentType;
+  PaymentTypeId: string;
   AdditionalInfo?: string;
 };
 
@@ -15,7 +15,7 @@ export type GetSocialEventPersonResponse = {
   socialEventId: string;
   companyId: string;
   createdAt: Date;
-  paymentType: PaymentType;
+  paymentType: GetResourceByTypeResponse;
   additionalInfo?: string;
   person: PersonResponse;
 }
@@ -32,7 +32,7 @@ export type UpdateSocialEventPersonRequest = {
   FirstName: string;
   LastName: string;
   IdCode: string;
-  PaymentType: PaymentType;
+  PaymentTypeId: string;
   AdditionalInfo?: string;
 };
 

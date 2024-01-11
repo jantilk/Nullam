@@ -12,12 +12,14 @@ public class SocialEventPersonsService : ISocialEventPersonsService
     private readonly ITransactionService _transactionService;
     private readonly IPersonRepository _personRepository;
     private readonly ISocialEventPersonsRepository _socialEventPersonsRepository;
+    private readonly IResourceRepository _resourceRepository;
 
-    public SocialEventPersonsService(ITransactionService transactionService, IPersonRepository personRepository, ISocialEventPersonsRepository socialEventPersonsRepository)
+    public SocialEventPersonsService(ITransactionService transactionService, IPersonRepository personRepository, ISocialEventPersonsRepository socialEventPersonsRepository, IResourceRepository resourceRepository)
     {
         _transactionService = transactionService;
         _personRepository = personRepository;
         _socialEventPersonsRepository = socialEventPersonsRepository;
+        _resourceRepository = resourceRepository;
     }
     
     public async Task<OperationResult<bool>> Add(Guid socialEventId, AddSocialEventPersonRequest request)
@@ -128,13 +130,18 @@ public class SocialEventPersonsService : ISocialEventPersonsService
                 return OperationResult<bool>.Failure("Person not found");
             }
 
+            var paymentType = await _resourceRepository.GetById(request.PaymentTypeId);
+            if (paymentType == null) {
+                return OperationResult<bool>.Failure("PaymentType not found");
+            }
+            
             person.FirstName = request.FirstName;
             person.LastName = request.LastName;
             person.IdCode = request.IdCode;
             
             await _personRepository.Update(person);
 
-            socialEventPerson.PaymentType = request.PaymentType;
+            socialEventPerson.PaymentType = paymentType;
             socialEventPerson.AdditionalInfo = request.AdditionalInfo;
             
             await _socialEventPersonsRepository.Update(socialEventPerson);

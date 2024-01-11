@@ -27,20 +27,12 @@ public class PersonRepository : IPersonRepository
     {
         _dbContext.Persons.Update(updatedPerson);
         
-        try
+        var result = await _dbContext.SaveChangesAsync();
+        if (result < 0)
         {
-            var result = await _dbContext.SaveChangesAsync();
-            if (result < 0)
-            {
-                throw new DbUpdateException("Update operation failed!");
-            }
-            
-            return result > 0;
+            throw new DbUpdateException("Update operation failed!");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            throw;
-        }    
+        
+        return result > 0;
     }
 }

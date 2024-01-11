@@ -20,10 +20,9 @@ public class SocialEventPersonsRepository : ISocialEventPersonsRepository
         {
             SocialEventId = socialEventId,
             PersonId = personId,
-            PaymentType = request.PaymentType,
+            ResourceId = request.PaymentTypeId,
             AdditionalInfo = request.AdditionalInfo,
             CreatedAt = DateTime.Now,
-
         };
 
         await _dbContext.SocialEventPersons.AddAsync(socialEventPerson);
@@ -44,6 +43,7 @@ public class SocialEventPersonsRepository : ISocialEventPersonsRepository
         var result = await _dbContext.SocialEventPersons
             .Include(x => x.Person)
             .Include(x => x.SocialEvent)
+            .Include(x => x.PaymentType)
             .Where(x => x.SocialEventId == socialEventId)
             .Where(x => x.PersonId == personId)
             .FirstOrDefaultAsync();
@@ -54,12 +54,17 @@ public class SocialEventPersonsRepository : ISocialEventPersonsRepository
     public async Task<SocialEventPerson?> GetSocialEventPerson(Guid socialEventId, Guid personId)
     {
         var result = await _dbContext.SocialEventPersons
-            .Include(x => x.PersonId)
+            .Include(x => x.Person)
             .Where(x => x.SocialEventId == socialEventId)
             .Where(x => x.PersonId == personId)
             .FirstOrDefaultAsync();
 
         return result;
+    }
+    
+    public async Task<List<SocialEventPerson>> GetByResourceId(Guid resourceId)
+    {
+        return await _dbContext.SocialEventPersons.Where(x => x.ResourceId == resourceId).ToListAsync();
     }
 
     public async Task<bool> Update(SocialEventPerson updatedSocialEventPerson)

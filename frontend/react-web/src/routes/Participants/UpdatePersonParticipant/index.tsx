@@ -1,12 +1,13 @@
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import queryKeys from "../../api/queryKeys.ts";
 import {ChangeEvent, useEffect, useState} from "react";
 import {toast} from "sonner";
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
-import socialEventPersonsApi, {UpdateSocialEventPersonRequest} from "../../api/socialEventPersonsApi.ts";
-import utils from "../../utils/utils.ts";
+import utils from "../../../utils/utils.ts";
+import queryKeys from "../../../api/queryKeys.ts";
+import socialEventPersonsApi, {UpdateSocialEventPersonRequest} from "../../../api/socialEventPersonsApi.ts";
+import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../api/resourceApi.ts";
 
 export default function UpdatePersonParticipant() {
   const {control, handleSubmit, reset} = useForm<UpdateSocialEventPersonRequest>();
@@ -36,7 +37,7 @@ export default function UpdatePersonParticipant() {
         FirstName: personData.person.firstName,
         LastName: personData.person.lastName,
         IdCode: personData.person.idCode,
-        PaymentType: personData.paymentType,
+        PaymentTypeId: personData.paymentType.id,
         AdditionalInfo: personData.additionalInfo
       });
     }
@@ -69,6 +70,16 @@ export default function UpdatePersonParticipant() {
   const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCharCount(event.target.value.length);
   };
+
+  const {data: paymentTypes} = useQuery({
+    queryKey: [queryKeys.RESOURCES_BY_TYPE],
+    queryFn: () => {
+      return resourceApi.getByType(resourceTypes.PAYMENT_TYPE)
+    },
+    select: (response) => {
+      return response.success ? response.data : [];
+    }
+  });
 
   return (
     <Container className={"shadow-sm bg-white"}>
@@ -172,24 +183,25 @@ export default function UpdatePersonParticipant() {
                       />
                     </Col>
                   </Form.Group>
-                  <Form.Group controlId="paymentType" as={Row}>
-                    <Form.Label column md={8}>Maksetüüp:*</Form.Label>
+                  <Form.Group controlId="paymentTypeId" as={Row}>
+                    <Form.Label column md={8}>Makseviis:*</Form.Label>
                     <Col md={16}>
                       <Controller
-                        name="PaymentType"
+                        name="PaymentTypeId"
                         control={control}
                         rules={{required: "Required"}}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control as="select" {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>
-                              <option value=""/>
-                              <option value={"Cash"}>Sularaha</option>
-                              <option value={"BankTransaction"}>Pangaülekanne</option>
+                            <Form.Control as={"select"} {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>
+                              <option/>
+                              {paymentTypes && paymentTypes.map((paymentType: GetResourceByTypeResponse) => {
+                                return (
+                                  <option key={paymentType.id} value={paymentType.id}>{paymentType.text}</option>
+                                )
+                              })}
                             </Form.Control>
                             {fieldState.error && (
-                              <div className="invalid-feedback"> {/* Use div for error message */}
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -203,9 +215,7 @@ export default function UpdatePersonParticipant() {
                         name="AdditionalInfo"
                         control={control}
                         defaultValue=""
-                        rules={{
-                          maxLength: {value: 1500, message: 'Maksimaalselt 1500 tähemärki'}
-                        }}
+                        rules={{maxLength: {value: 1500, message: 'Maksimaalselt 1500 tähemärki'}}}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -219,12 +229,8 @@ export default function UpdatePersonParticipant() {
                                 handleTextChange(e);
                               }}
                             />
-                            <div className="text-count justify-content-end d-flex py-1 px-2">
-                              <span>{charCount}/1500</span>
-                            </div>
-                            {fieldState.error && (
-                              <div className="invalid-feedback">{fieldState.error.message}</div>
-                            )}
+                            <div className="text-count justify-content-end d-flex py-1 px-2"><span>{charCount}/1500</span></div>
+                            {fieldState.error && (<div className="invalid-feedback">{fieldState.error.message}</div>)}
                           </>
                         )}
                       />
@@ -233,14 +239,10 @@ export default function UpdatePersonParticipant() {
                 </Stack>
                 <Row>
                   <Col sm={6}>
-                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100 mb-4 mb-sm-0"}>
-                      Tagasi
-                    </Button>
+                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100 mb-4 mb-sm-0"}>Tagasi</Button>
                   </Col>
                   <Col sm={6}>
-                    <Button variant="primary" type="submit" className={"w-100"}>
-                      Salvesta
-                    </Button>
+                    <Button variant="primary" type="submit" className={"w-100"}>Salvesta</Button>
                   </Col>
                 </Row>
               </Form>

@@ -42,8 +42,13 @@ body {
   }
 }
 
+.table-col-min-width {
+  width: 1%;
+  max-width: min-content;
+}
+
 .table {
-  font-size: $font-size-base * .75;
+  font-size: $font-size-base * .875;
 
   &.participants-table {
     .table-col-min-width {
@@ -112,7 +117,7 @@ h1 {
 
   &.btn-link {
     text-decoration: none;
-    font-size: $font-size-base * .75;
+    font-size: $font-size-base * .875;
     font-weight: bold;
 
     &:hover {

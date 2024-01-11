@@ -1,4 +1,4 @@
-using Domain.Enums;
+using Domain.Entities;
 
 namespace Application.DTOs.Responses;
 
@@ -9,6 +9,6 @@ public class GetPersonsBySocialEventIdResponse
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required string IdCode { get; set; }
-    public required PaymentType PaymentType { get; set; }
+    public required Resource PaymentType { get; set; }
     public string? AdditionalInfo { get; set; }
 }

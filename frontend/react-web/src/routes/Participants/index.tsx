@@ -32,12 +32,8 @@ export default function Participants() {
       </Modal.Header>
       <Modal.Body>Oled kindel, et soovid osalejat kustutada?</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowModal(false)}>
-          Tühista
-        </Button>
-        <Button variant="danger" onClick={handleDelete}>
-          Kustuta
-        </Button>
+        <Button variant="secondary" onClick={() => setShowModal(false)}>Tühista</Button>
+        <Button variant="danger" onClick={handleDelete}>Kustuta</Button>
       </Modal.Footer>
     </Modal>
   );
@@ -134,7 +130,7 @@ export default function Participants() {
         if (!dateA) return 1;
         if (!dateB) return -1;
 
-        return dateB - dateA;
+        return dateA - dateB;
       });
   }, [companies, persons]);
 

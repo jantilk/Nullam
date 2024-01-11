@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.DTOs.Requests;
@@ -12,7 +13,7 @@ public class UpdateSocialEventCompanyRequest
     [Range(10000000, 99999999)]
     public required int RegisterCode { get; set; }
     [Required]
-    public required PaymentType PaymentType { get; set; }
+    public required Guid PaymentTypeId { get; set; }
     [Required]
     [Range(1, int.MaxValue, ErrorMessage = "The number of participants must be greater than 0.")]
     public required int NumberOfParticipants { get; set; }

@@ -26,7 +26,7 @@ public class SocialEventPersonsController : NullamControllerBase
         return HandleOperationResult(await _socialEventPersonsService.GetBySocialEventId(socialEventId));
     }
     
-    [HttpGet("{personId}")]
+    [HttpGet("{personId:guid}")]
     public async Task<IActionResult> GetByPersonId([FromRoute] Guid socialEventId, [FromRoute] Guid personId)
     {
         return HandleOperationResult(await _socialEventPersonsService.GetByPersonId(socialEventId, personId));

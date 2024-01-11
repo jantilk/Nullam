@@ -3,8 +3,9 @@ import RootLayout from "./RootLayout";
 import Home from "../routes/Home";
 import AddSocialEvent from "../routes/AddSocialEvent";
 import Participants from "../routes/Participants";
-import UpdateCompanyParticipant from "../routes/UpdateCompanyParticipant";
-import UpdatePersonParticipant from "../routes/UpdatePersonParticipant";
+import UpdatePersonParticipant from "../routes/Participants/UpdatePersonParticipant";
+import UpdateCompanyParticipant from "../routes/Participants/UpdateCompanyParticipant";
+import Settings from "../routes/Settings";
 
 export default function App() {
 
@@ -13,6 +14,7 @@ export default function App() {
       <RootLayout>
         <Routes>
           <Route path="/" element={<Home/>}/>
+          <Route path="/settings" element={<Settings/>}/>
           <Route path="/social-events" element={<AddSocialEvent/>}/>
           <Route path="/social-events/:eventId/participants" element={<Participants/>}/>
           <Route path="/social-events/:eventId/participants/companies/:companyId" element={<UpdateCompanyParticipant/>}/>

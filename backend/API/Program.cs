@@ -17,6 +17,8 @@ builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 builder.Services.AddScoped<ISocialEventPersonsService, SocialEventPersonsService>();
 builder.Services.AddScoped<ISocialEventPersonsRepository, SocialEventPersonsRepository>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 builder.Services.AddDbContext<NullamDbContext>(options =>

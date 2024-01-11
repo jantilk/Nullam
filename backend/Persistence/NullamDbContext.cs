@@ -12,6 +12,7 @@ public class NullamDbContext : DbContext
     public DbSet<SocialEvent> SocialEvents { get; set; }
     public DbSet<SocialEventPerson> SocialEventPersons { get; set; }
     public DbSet<SocialEventCompany> SocialEventCompanies { get; set; }
+    public DbSet<Resource> Resources { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +33,18 @@ public class NullamDbContext : DbContext
             .WithMany(se => se.Companies)
             .HasForeignKey(sec => sec.SocialEventId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<SocialEventPerson>()
+            .HasOne<Resource>(sep => sep.PaymentType)
+            .WithMany()
+            .HasForeignKey(sep => sep.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SocialEventCompany>()
+            .HasOne<Resource>(sec => sec.PaymentType)
+            .WithMany()
+            .HasForeignKey(sec => sec.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<SocialEvent>()
             .Property(se => se.Date)
@@ -40,6 +53,12 @@ public class NullamDbContext : DbContext
         modelBuilder.Entity<SocialEvent>()
             .Property(se => se.CreatedAt)
             .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        
+        modelBuilder.Entity<Resource>()
+            .Property(r => r.CreatedAt)
+            .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        
+        // TODO: add kinds for all date props
         
         base.OnModelCreating(modelBuilder);
     }

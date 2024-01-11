@@ -12,4 +12,5 @@ public interface ISocialEventCompaniesRepository
     Task<SocialEventCompany?> GetSocialEventCompany(Guid socialEventId, Guid companyId);
     Task<bool> Update(SocialEventCompany updatedSocialEventCompany);
     Task<bool> Delete(SocialEventCompany socialEventCompany);
+    Task<List<SocialEventCompany>> GetByResourceId(Guid resourceId);
 }

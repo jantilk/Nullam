@@ -9,6 +9,7 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({children}: RootLayoutProps) {
+
   return (
     <Container className={"pt-4"}>
       <Toaster position={"top-right"} richColors/>

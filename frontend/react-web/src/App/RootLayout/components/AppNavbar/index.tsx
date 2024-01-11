@@ -32,6 +32,9 @@ export default function AppNavbar() {
           <Nav.Item>
             <NavLink to="/social-events" className="nav-link" end>ÜRITUSE LISAMINE</NavLink>
           </Nav.Item>
+          <Nav.Item>
+            <NavLink to="/settings" className="nav-link" end>SEADED</NavLink>
+          </Nav.Item>
         </Nav>
       </Navbar.Collapse>
       <div className={"d-none d-md-block px-4"}><SymbolImage/></div>

@@ -1,11 +1,12 @@
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
-import socialEventCompaniesApi, {UpdateSocialEventCompanyRequest} from "../../api/socialEventCompaniesApi.ts";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import queryKeys from "../../api/queryKeys.ts";
 import {ChangeEvent, useEffect, useState} from "react";
 import {toast} from "sonner";
+import queryKeys from "../../../api/queryKeys.ts";
+import socialEventCompaniesApi, {UpdateSocialEventCompanyRequest} from "../../../api/socialEventCompaniesApi.ts";
+import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../api/resourceApi.ts";
 
 export default function UpdateCompanyParticipant() {
   const {control, handleSubmit, reset} = useForm<UpdateSocialEventCompanyRequest>();
@@ -35,7 +36,7 @@ export default function UpdateCompanyParticipant() {
         Name: companyData.company.name,
         RegisterCode: companyData.company.registerCode,
         NumberOfParticipants: companyData.numberOfParticipants,
-        PaymentType: companyData.paymentType,
+        PaymentTypeId: companyData.paymentType.id,
         AdditionalInfo: companyData.additionalInfo
       });
     }
@@ -69,21 +70,25 @@ export default function UpdateCompanyParticipant() {
     setCharCount(event.target.value.length);
   };
 
+  const {data: paymentTypes} = useQuery({
+    queryKey: [queryKeys.RESOURCES_BY_TYPE],
+    queryFn: () => {
+      return resourceApi.getByType(resourceTypes.PAYMENT_TYPE)
+    },
+    select: (response) => {
+      return response.success ? response.data : [];
+    }
+  });
+
   return (
     <Container className={"shadow-sm bg-white"}>
       <Row>
-        <Col className={"bg-primary d-flex align-items-center justify-content-center"} md={6}>
-          <h1 className={"text-white"}>Osavõtja info</h1>
-        </Col>
+        <Col className={"bg-primary d-flex align-items-center justify-content-center"} md={6}><h1 className={"text-white"}>Osavõtja info</h1></Col>
         <Col className={"background-image-col"}/>
       </Row>
       <Row className={"justify-content-center"}>
         <Col sm={24} md={16} lg={10} className={"p-4"}>
-          <Row>
-            <Col>
-              <h2 className={"text-primary"}>Osavõtja info</h2>
-            </Col>
-          </Row>
+          <Row><Col><h2 className={"text-primary"}>Osavõtja info</h2></Col></Row>
           <Row>
             <Col>
               <Form onSubmit={handleSubmit(onSubmit)}>
@@ -98,15 +103,8 @@ export default function UpdateCompanyParticipant() {
                         rules={{required: "kohustuslik"}}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control
-                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                              type="text" {...field}
-                            />
-                            {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
-                            )}
+                            <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                            {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}
                       />
@@ -136,15 +134,8 @@ export default function UpdateCompanyParticipant() {
                         }}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control
-                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                              type="text" {...field}
-                            />
-                            {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
-                            )}
+                            <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                            {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}
                       />
@@ -170,38 +161,30 @@ export default function UpdateCompanyParticipant() {
                         }}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control
-                              type="number" {...field}
-                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                            />
-                            {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
-                            )}
+                            <Form.Control type="number" {...field} className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}/>
+                            {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}
                       />
                     </Col>
                   </Form.Group>
-                  <Form.Group controlId="paymentType" as={Row}>
-                    <Form.Label column md={8}>Maksetüüp:*</Form.Label>
+                  <Form.Group controlId="paymentTypeId" as={Row}>
+                    <Form.Label column md={8}>Makseviis:*</Form.Label>
                     <Col md={16}>
                       <Controller
-                        name="PaymentType"
+                        name="PaymentTypeId"
                         control={control}
                         rules={{required: "Required"}}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control as="select" {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>
                               <option value=""/>
-                              <option value={"Cash"}>Sularaha</option>
-                              <option value={"BankTransaction"}>Pangaülekanne</option>
+                              {paymentTypes && paymentTypes.map((paymentType: GetResourceByTypeResponse) => {
+                                return <option key={paymentType.id} value={paymentType.id}>{paymentType.text}</option>
+                              })}
                             </Form.Control>
                             {fieldState.error && (
-                              <div className="invalid-feedback">
-                                {fieldState.error.message}
-                              </div>
+                              <div className="invalid-feedback">{fieldState.error.message}</div>
                             )}
                           </>
                         )}
@@ -215,9 +198,7 @@ export default function UpdateCompanyParticipant() {
                         name="AdditionalInfo"
                         control={control}
                         defaultValue=""
-                        rules={{
-                          maxLength: {value: 5000, message: 'Maksimaalselt 5000 tähemärki'}
-                        }}
+                        rules={{maxLength: {value: 5000, message: 'Maksimaalselt 5000 tähemärki'}}}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control
@@ -231,12 +212,8 @@ export default function UpdateCompanyParticipant() {
                                 handleTextChange(e);
                               }}
                             />
-                            <div className="text-count justify-content-end d-flex py-1 px-2">
-                              <span>{charCount}/5000</span>
-                            </div>
-                            {fieldState.error && (
-                              <div className="invalid-feedback">{fieldState.error.message}</div>
-                            )}
+                            <div className="text-count justify-content-end d-flex py-1 px-2"><span>{charCount}/5000</span></div>
+                            {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}
                       />
@@ -245,14 +222,10 @@ export default function UpdateCompanyParticipant() {
                 </Stack>
                 <Row>
                   <Col sm={6}>
-                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100 mb-4 mb-sm-0"}>
-                      Tagasi
-                    </Button>
+                    <Button variant={"secondary"} onClick={() => navigate(-1)} className={"w-100 mb-4 mb-sm-0"}>Tagasi</Button>
                   </Col>
                   <Col sm={6}>
-                    <Button variant="primary" type="submit" className={"w-100"}>
-                      Salvesta
-                    </Button>
+                    <Button variant="primary" type="submit" className={"w-100"}>Salvesta</Button>
                   </Col>
                 </Row>
               </Form>
