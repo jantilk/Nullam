@@ -5,14 +5,11 @@ import queryKeys from "../../api/queryKeys.ts";
 import {ChangeEvent, useEffect, useState} from "react";
 import {toast} from "sonner";
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
-import socialEventPersonsApi, {
-  AddSocialEventPersonRequest,
-  UpdateSocialEventPersonRequest
-} from "../../api/socialEventPersonsApi.ts";
+import socialEventPersonsApi, {UpdateSocialEventPersonRequest} from "../../api/socialEventPersonsApi.ts";
 import utils from "../../utils/utils.ts";
 
 export default function UpdatePersonParticipant() {
-  const {control, handleSubmit, reset} = useForm<AddSocialEventPersonRequest>();
+  const {control, handleSubmit, reset} = useForm<UpdateSocialEventPersonRequest>();
   const navigate = useNavigate();
   const {eventId, personId} = useParams();
   const queryClient = useQueryClient();
@@ -46,7 +43,7 @@ export default function UpdatePersonParticipant() {
   }, [personData, isLoading, reset]);
 
   const mutation = useMutation({
-    mutationFn: ({eventId, personId, formData}: { eventId: string, personId: string, formData: AddSocialEventPersonRequest }) => {
+    mutationFn: ({eventId, personId, formData}: { eventId: string, personId: string, formData: UpdateSocialEventPersonRequest }) => {
       return socialEventPersonsApi.update(eventId, personId, formData);
     },
     onSuccess: async () => {

@@ -1,14 +1,14 @@
 import {Button, Col, Container, Form, Row, Stack} from "react-bootstrap";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate, useParams} from "react-router-dom";
-import socialEventCompaniesApi, {AddSocialEventCompanyRequest, UpdateSocialEventCompanyRequest} from "../../api/socialEventCompaniesApi.ts";
+import socialEventCompaniesApi, {UpdateSocialEventCompanyRequest} from "../../api/socialEventCompaniesApi.ts";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import queryKeys from "../../api/queryKeys.ts";
 import {ChangeEvent, useEffect, useState} from "react";
 import {toast} from "sonner";
 
 export default function UpdateCompanyParticipant() {
-  const {control, handleSubmit, reset} = useForm<AddSocialEventCompanyRequest>();
+  const {control, handleSubmit, reset} = useForm<UpdateSocialEventCompanyRequest>();
   const navigate = useNavigate();
   const {eventId, companyId} = useParams();
   const queryClient = useQueryClient();
