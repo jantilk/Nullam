@@ -8,6 +8,7 @@ import utils from "../../../utils/utils.ts";
 import queryKeys from "../../../api/queryKeys.ts";
 import socialEventPersonsApi, {UpdateSocialEventPersonRequest} from "../../../api/socialEventPersonsApi.ts";
 import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../api/resourceApi.ts";
+import constants from "../../../utils/constants.ts";
 
 export default function UpdatePersonParticipant() {
   const {control, handleSubmit, reset} = useForm<UpdateSocialEventPersonRequest>();
@@ -59,7 +60,7 @@ export default function UpdatePersonParticipant() {
 
   const onSubmit = (formData: UpdateSocialEventPersonRequest) => {
     if (!eventId || !personId) {
-      toast.error('Midagi läks valesti!');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
       return;
     }
 

@@ -11,6 +11,7 @@ import {toast} from "sonner";
 import SocialEventFormData from "../../types/SocialEventFormData.ts";
 import socialEventsApi from "../../api/socialEventsApi.ts";
 import {ChangeEvent, useState} from "react";
+import constants from "../../utils/constants.ts";
 
 export default function AddSocialEvent() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function AddSocialEvent() {
       toast.success('Ürituse lisamine õnnestus!');
       await queryClient.invalidateQueries([queryKeys.FUTURE_SOCIAL_EVENTS] as InvalidateQueryFilters);
     } catch (er) {
-      toast.error('Midagi läks valesti!');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
     }
   };
 

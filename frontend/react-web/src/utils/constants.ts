@@ -1,0 +1,10 @@
+const constants = {
+  COMPANY_ADDITIONAL_TEXT_LENGTH: 4000,
+  PERSON_ADDITIONAL_TEXT_LENGTH: 1500,
+  SOCIAL_EVENT_ADDITIONAL_TEXT_LENGTH: 1000,
+  ERROR_TEXT: {
+    SOMETHING_WENT_WRONG: "Midagi läks valesti..."
+  }
+}
+
+export default constants;

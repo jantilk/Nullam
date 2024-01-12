@@ -6,7 +6,7 @@ import SocialEventFormData from "../types/SocialEventFormData.ts";
 const baseUrl = '/api/v1/social-events';
 
 export interface FilterDto {
-  Keyword?: string;
+  SearchTerm?: string;
   StartDate?: Date;
   EndDate?: Date;
 }
@@ -29,8 +29,8 @@ const socialEventsApi = {
     }
 
     if (filter) {
-      if (filter.Keyword) {
-        queryParams.append("filter.Keyword", filter.Keyword);
+      if (filter.SearchTerm) {
+        queryParams.append("filter.SearchTerm", filter.SearchTerm);
       }
       if (filter.StartDate) {
         queryParams.append("filter.StartDate", filter.StartDate.toISOString());

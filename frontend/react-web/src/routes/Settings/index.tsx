@@ -7,12 +7,12 @@ import {Controller, useForm} from "react-hook-form";
 import {toast} from "sonner";
 import {useState} from "react";
 import axios from "axios";
+import constants from "../../utils/constants.ts";
 
 export default function Settings() {
   const {control, handleSubmit, reset} = useForm<AddResourceRequest>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const FOREIGN_KEY_CONSTRAINT = "FOREIGN_KEY_CONSTRAINT";
 
   const {data: paymentTypes} = useQuery({
     queryKey: [queryKeys.RESOURCES_BY_TYPE],
@@ -31,7 +31,7 @@ export default function Settings() {
       await queryClient.invalidateQueries([queryKeys.RESOURCES_BY_TYPE] as InvalidateQueryFilters);
       reset();
     } catch (er) {
-      toast.error('Midagi läks valesti!');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
     }
   };
 
@@ -53,7 +53,7 @@ export default function Settings() {
         setShowModal(false);
         await queryClient.invalidateQueries([queryKeys.RESOURCES_BY_TYPE] as InvalidateQueryFilters);
       } catch (er) {
-        toast.error('Midagi läks valesti!');
+        toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
       }
     }
   };
@@ -74,13 +74,11 @@ export default function Settings() {
         setShowDeleteModal(false);
         await queryClient.invalidateQueries([queryKeys.RESOURCES_BY_TYPE] as InvalidateQueryFilters);
       } catch (er) {
-        console.log(er)
-        if (axios.isAxiosError(er) && er?.response?.data.error === FOREIGN_KEY_CONSTRAINT) {
-          toast.error('Ei saa kustutada. Maksmisviis on kasutuses.')
+        if (axios.isAxiosError(er) && er.response?.status === 409) {
+          toast.error('Ei saa kustutada. Maksmisviis on kasutuses.');
           return;
         }
-
-        toast.error('Midagi läks valesti...');
+        toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
       } finally {
         setShowDeleteModal(false);
       }

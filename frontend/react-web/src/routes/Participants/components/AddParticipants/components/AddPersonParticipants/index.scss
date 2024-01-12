@@ -1,0 +1,13 @@
+.search-results-list {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+}
+
+.search-result-item {
+  cursor: pointer;
+}
+
+.search-result-item:hover {
+  background-color: #f8f9fa;
+}

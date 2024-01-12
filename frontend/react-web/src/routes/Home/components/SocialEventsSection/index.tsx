@@ -17,6 +17,7 @@ import RemoveIcon from '/public/remove.svg?react'
 import {toast} from "sonner";
 import {format} from 'date-fns';
 import socialEventsApi, {SortingOption} from "../../../../api/socialEventsApi.ts";
+import constants from "../../../../utils/constants.ts";
 
 interface AppCardProps {
   children?: ReactNode;
@@ -112,12 +113,12 @@ export default function SocialEventsSection() {
   });
 
   if (futureError || pastError) {
-    toast.error("Midagi läks valesti...");
+    toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
   }
 
   return (
     <Row>
-      <Col lg={12}>
+      <Col lg={12} className={"mb-4 mb-lg-0"}>
         <SocialEventCard title={"Tulevased üritused"}>
           <CardBody>
             <Table borderless>

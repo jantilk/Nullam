@@ -15,6 +15,7 @@ builder.Services.AddScoped<ISocialEventCompaniesService, SocialEventCompaniesSer
 builder.Services.AddScoped<ISocialEventCompaniesRepository, SocialEventCompaniesRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ISocialEventPersonsService, SocialEventPersonsService>();
 builder.Services.AddScoped<ISocialEventPersonsRepository, SocialEventPersonsRepository>();
 builder.Services.AddScoped<IResourceService, ResourceService>();
@@ -38,7 +39,6 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        // options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

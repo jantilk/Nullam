@@ -8,6 +8,7 @@ import queryKeys from "../../../../../../api/queryKeys.ts";
 import socialEventCompaniesApi, {AddSocialEventCompanyRequest} from "../../../../../../api/socialEventCompaniesApi.ts";
 import {ChangeEvent, useState} from "react";
 import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../../../../api/resourceApi.ts";
+import constants from "../../../../../../utils/constants.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
@@ -28,7 +29,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
       reset();
     },
     onError: () => {
-      toast.error('Midagi läks valesti');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
     }
   })
 
@@ -168,13 +169,13 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               name="AdditionalInfo"
               control={control}
               defaultValue=""
-              rules={{maxLength: {value: 5000, message: 'Maksimaalselt 5000 tähemärki'}}}
+              rules={{maxLength: {value: 4000, message: 'Maksimaalselt 4000 tähemärki'}}}
               render={({field, fieldState}) => (
                 <>
                   <Form.Control
                     as={"textarea"}
                     rows={4}
-                    maxLength={5000}
+                    maxLength={4000}
                     {...field}
                     className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
                     onChange={(e) => {
@@ -182,7 +183,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                       handleTextChange(e);
                     }}
                   />
-                  <div className="text-count justify-content-end d-flex py-1 px-2"><span>{charCount}/5000</span></div>
+                  <div className="text-count justify-content-end d-flex py-1 px-2"><span>{charCount}/4000</span></div>
                   {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}

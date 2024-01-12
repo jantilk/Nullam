@@ -2,22 +2,43 @@ import {Controller, useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {toast} from "sonner";
-import {Button, Col, Form, Row, Stack} from "react-bootstrap";
+import {Button, Col, Form, ListGroup, Row, Stack} from "react-bootstrap";
 import {SocialEvent} from "../../../../../../types/SocialEvent.ts";
 import socialEventPersonsApi, {AddSocialEventPersonRequest} from "../../../../../../api/socialEventPersonsApi.ts";
 import queryKeys from "../../../../../../api/queryKeys.ts";
 import utils from "../../../../../../utils/utils.ts";
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, useCallback, useEffect, useState} from "react";
 import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../../../../api/resourceApi.ts";
+import personsApi from "../../../../../../api/personsApi.ts";
+import {debounce} from "lodash";
+import constants from "../../../../../../utils/constants.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
 }
 
+export interface SearchResult {
+  id: string;
+  createdAt: Date;
+  firstName: string;
+  lastName: string;
+  idCode: string;
+}
+
 export default function AddPersonParticipants({socialEvent}: ComponentProps) {
-  const {control, handleSubmit, reset} = useForm<AddSocialEventPersonRequest>();
+  const {control, handleSubmit, reset, setValue} = useForm<AddSocialEventPersonRequest>({
+    defaultValues: {
+      FirstName: "",
+      LastName: "",
+      IdCode: "",
+      PaymentTypeId: "",
+      AdditionalInfo: ""
+    }
+  });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   const mutation = useMutation({
     mutationFn: ({socialEventId, formData}: { socialEventId: string, formData: AddSocialEventPersonRequest }) => {
@@ -25,17 +46,23 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries([queryKeys.PERSONS_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
-      toast.success('Isiku lisamine õnnestus!');
+      toast.success('Isiku lisamine õnnestus.');
+      setSearchResults([])
       reset();
     },
     onError: () => {
-      toast.error('Midagi läks valesti');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
     }
   })
 
   const onSubmit = async (formData: AddSocialEventPersonRequest) => {
     if (!socialEvent?.id) {
-      toast.error('Social event ID is missing!');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
+      return;
+    }
+
+    if (persons?.some(x => x.idCode === formData.IdCode)) {
+      toast.error('Selle isikukoodiga osaleja on üritusele juba registreeritud.');
       return;
     }
 
@@ -52,9 +79,63 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
     queryFn: () => {
       return resourceApi.getByType(resourceTypes.PAYMENT_TYPE)
     },
-    select: (response) => {
-      return response.success ? response.data : [];
+    select: (response) => response.success ? response.data : []
+  });
+
+  const handleSearch = async (searchTerm: string) => {
+    try {
+      const response = await personsApi.get({SearchTerm: searchTerm});
+      if (response.success && response.data) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        toast.error('No results found');
+      }
+    } catch (error) {
+      toast.error('Error fetching search results');
     }
+  };
+
+  const debounceSearch = useCallback(debounce(handleSearch, 300), []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      debounceSearch(searchTerm);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, debounceSearch]);
+
+  const handleSelectPerson = (person: SearchResult) => {
+    reset({
+      FirstName: person.firstName,
+      LastName: person.lastName,
+      IdCode: person.idCode,
+      // ... other fields if needed
+    });
+    setValue('PaymentTypeId', "");
+    setSearchResults([]);
+  }
+
+  const {data: persons} = useQuery({
+    queryKey: [queryKeys.PERSONS_BY_SOCIAL_EVENT_ID, socialEvent?.id],
+    queryFn: () => {
+      const id = socialEvent?.id;
+      if (typeof id === 'string') {
+        return socialEventPersonsApi.getBySocialEventId(id);
+      } else {
+        throw new Error("Social event ID is undefined");
+      }
+    },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
+    enabled: !!socialEvent?.id,
+    refetchOnMount: "always",
+    staleTime: 0
   });
 
   return (
@@ -76,13 +157,43 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                   <>
                     <Form.Control
                       className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                      type="text" {...field}
+                      type="text"
+                      autoComplete="off"
+                      {...field}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setSearchResults([]);
+                        }, 200)
+                      }}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setSearchTerm(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') setSearchResults([]);
+                        return;
+                      }}
                     />
                     {fieldState.error && (
                       <div className="invalid-feedback">
                         {fieldState.error.message}
                       </div>
                     )}
+                    <ListGroup className="search-results-list">
+                      {searchResults.slice(0, 5).map((result) => (
+                        <ListGroup.Item
+                          key={result.id}
+                          action
+                          onClick={() => handleSelectPerson(result)}
+                          className="search-result-item"
+                        >
+                          <div className={"d-flex justify-content-between"}>
+                            <span>{result.firstName} {result.lastName}</span>
+                            <span>{result.idCode}</span>
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
                   </>
                 )}
               />
@@ -101,15 +212,8 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                 }}
                 render={({field, fieldState}) => (
                   <>
-                    <Form.Control
-                      className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                      type="text" {...field}
-                    />
-                    {fieldState.error && (
-                      <div className="invalid-feedback">
-                        {fieldState.error.message}
-                      </div>
-                    )}
+                    <Form.Control autoComplete="off" className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                    {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                   </>
                 )}
               />
@@ -130,15 +234,8 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                 }}
                 render={({field, fieldState}) => (
                   <>
-                    <Form.Control
-                      className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                      type="text" {...field}
-                    />
-                    {fieldState.error && (
-                      <div className="invalid-feedback">
-                        {fieldState.error.message}
-                      </div>
-                    )}
+                    <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                    {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                   </>
                 )}
               />
@@ -163,11 +260,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                         )
                       })}
                     </Form.Control>
-                    {fieldState.error && (
-                      <div className="invalid-feedback">
-                        {fieldState.error.message}
-                      </div>
-                    )}
+                    {fieldState.error && (<div className="invalid-feedback">{fieldState.error.message}</div>)}
                   </>
                 )}
               />
@@ -196,12 +289,8 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                         handleTextChange(e);
                       }}
                     />
-                    <div className="text-count justify-content-end d-flex py-1 px-2">
-                      <span>{charCount}/1500</span>
-                    </div>
-                    {fieldState.error && (
-                      <div className="invalid-feedback">{fieldState.error.message}</div>
-                    )}
+                    <div className="text-count justify-content-end d-flex py-1 px-2"><span>{charCount}/1500</span></div>
+                    {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                   </>
                 )}
               />

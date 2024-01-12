@@ -1,15 +1,14 @@
-using Application.Common;
+using Application.DTOs;
 using Application.DTOs.Requests;
 using Application.DTOs.Responses;
 using Application.Interfaces;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Services;
 
 public class ResourceService : IResourceService
 {
-    private const string FOREIGN_KEY_CONSTRAINT = "FOREIGN_KEY_CONSTRAINT";
-    
     private readonly IResourceRepository _resourceRepository;
     private readonly ISocialEventPersonsRepository _socialEventPersonsRepository;
     private readonly ISocialEventCompaniesRepository _socialEventCompaniesRepository;
@@ -75,7 +74,7 @@ public class ResourceService : IResourceService
             
             if (resource == null)
             {
-                return OperationResult<bool>.Failure("Update operation failed, resource not found.");
+                return OperationResult<bool>.Failure($"{nameof(Update)} operation failed.", StatusCodes.Status404NotFound);
             }
             
             resource.Type = request.Type;
@@ -99,12 +98,12 @@ public class ResourceService : IResourceService
             
             if (resource == null)
             {
-                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Resource not found.");
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed.", StatusCodes.Status404NotFound);
             }
             
             if (await IsResourceInUse(id))
             {
-                return OperationResult<bool>.Failure(FOREIGN_KEY_CONSTRAINT);
+                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed.", StatusCodes.Status409Conflict);
             }
             
             var result = await _resourceRepository.Delete(resource);

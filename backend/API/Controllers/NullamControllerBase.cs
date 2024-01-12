@@ -1,4 +1,4 @@
-using Application.Common;
+using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -13,7 +13,7 @@ public class NullamControllerBase : ControllerBase
         }
         
         if (!result.IsSuccess) {
-            return BadRequest(new { error = result.Error, success = false });
+            return StatusCode(result.StatusCode, new { error = result.Error, success = false });
         }
         
         if (typeof(T) == typeof(bool))

@@ -10,6 +10,7 @@ import {AxiosError, HttpStatusCode} from "axios";
 import socialEventPersonsApi from "../../api/socialEventPersonsApi.ts";
 import {useMemo, useState} from "react";
 import socialEventsApi from "../../api/socialEventsApi.ts";
+import constants from "../../utils/constants.ts";
 
 export interface CurrentParticipant {
   id: string | null;
@@ -99,7 +100,7 @@ export default function Participants() {
 
     const isError = axiosError && axiosError.response?.status !== HttpStatusCode.NotFound;
     if (isError) {
-      toast.error("Midagi läks valesti");
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
     }
   }
 
@@ -182,7 +183,6 @@ export default function Participants() {
 
     setShowModal(false);
   }
-
 
   return (
     <Container className={"shadow-sm bg-white"}>

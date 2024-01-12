@@ -9,7 +9,9 @@ public class SocialEventCompany : ParticipantBase
     public required Guid CompanyId { get; set; }
     [Range(1, int.MaxValue, ErrorMessage = "The number of participants must be greater than 0.")]
     public required int NumberOfParticipants { get; set; }
-    [MaxLength(5000)]
+    
+    //TODO: Maybe 4000 is ok also? Everything over 4000 will make it nvarchar(max). Can be increased easily later.
+    [MaxLength(4000)]
     public string? AdditionalInfo { get; set; }
     
     public SocialEvent? SocialEvent { get; set; }

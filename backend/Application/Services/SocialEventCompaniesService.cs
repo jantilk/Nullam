@@ -1,4 +1,4 @@
-using Application.Common;
+using Application.DTOs;
 using Application.DTOs.Requests;
 using Application.DTOs.Responses;
 using Application.Interfaces;

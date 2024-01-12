@@ -1,9 +1,8 @@
-using Application.Common;
+using Application.DTOs;
 using Application.DTOs.Requests;
 using Application.DTOs.Responses;
 using Application.Interfaces;
 using Domain.Entities;
-using Domain.Enums;
 
 namespace Application.Services;
 
@@ -125,7 +124,7 @@ public class SocialEventPersonsService : ISocialEventPersonsService
                 return OperationResult<bool>.Failure("Social event person not found");
             }
             
-            var person = await _personRepository.Get(personId);
+            var person = await _personRepository.GetById(personId);
             if (person == null) {
                 return OperationResult<bool>.Failure("Person not found");
             }
