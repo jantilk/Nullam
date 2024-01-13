@@ -46,7 +46,7 @@ public class TransactionService : ITransactionService
     {
         if (_currentTransaction == null)
         {
-            throw new InvalidOperationException("No transaction in progress.");
+            return;
         }
 
         try

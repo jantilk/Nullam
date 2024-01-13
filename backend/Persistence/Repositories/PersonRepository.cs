@@ -1,4 +1,5 @@
 using Application.DTOs;
+using Application.DTOs.Requests;
 using Application.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,33 @@ public class PersonRepository : IPersonRepository
     public async Task<Person?> GetById(Guid personId)
     {
         return await _dbContext.Persons.FirstOrDefaultAsync(x => x.Id == personId);
+    }
+
+    public async Task<Person?> Get(GetPersonRequest request)
+    {
+        var query = _dbContext.Persons.AsQueryable();
+        
+        if (request.Id != null && request.Id != Guid.Empty)
+        {
+            query = query.Where(x => x.Id == request.Id);
+        }
+        
+        if (!string.IsNullOrEmpty(request.FirstName))
+        {
+            query = query.Where(x => x.FirstName == request.FirstName);
+        }
+        
+        if (!string.IsNullOrEmpty(request.LastName))
+        {
+            query = query.Where(x => x.LastName == request.LastName);
+        }
+        
+        if (!string.IsNullOrEmpty(request.IdCode))
+        {
+            query = query.Where(x => x.IdCode == request.IdCode);
+        }
+
+        return await query.FirstOrDefaultAsync();
     }
 
     public async Task<bool> Update(Person updatedPerson)

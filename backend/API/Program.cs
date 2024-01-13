@@ -54,8 +54,10 @@ using (var scope = app.Services.CreateScope())
     // Apply migrations
     dbContext.Database.Migrate();
     
-    // Seed db
-    NullamDbContext.Initialize(dbContext);
+    if (app.Environment.IsDevelopment()) {
+        // Seed db
+        NullamDbContext.Initialize(dbContext);
+    }
 }
 
 // Swagger middleware conf
@@ -72,5 +74,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-// TODO: why ef db commands run every time, ok? do they?

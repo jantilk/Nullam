@@ -3,6 +3,7 @@ using Application.DTOs.Requests;
 using Application.DTOs.Responses;
 using Application.Interfaces;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Services;
 
@@ -13,7 +14,11 @@ public class SocialEventPersonsService : ISocialEventPersonsService
     private readonly ISocialEventPersonsRepository _socialEventPersonsRepository;
     private readonly IResourceRepository _resourceRepository;
 
-    public SocialEventPersonsService(ITransactionService transactionService, IPersonRepository personRepository, ISocialEventPersonsRepository socialEventPersonsRepository, IResourceRepository resourceRepository)
+    public SocialEventPersonsService(
+        ITransactionService transactionService,
+        IPersonRepository personRepository,
+        ISocialEventPersonsRepository socialEventPersonsRepository,
+        IResourceRepository resourceRepository)
     {
         _transactionService = transactionService;
         _personRepository = personRepository;
@@ -27,18 +32,32 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         {
             await _transactionService.BeginTransactionAsync();
 
-            var personId = Guid.NewGuid();
-            var person = new Person
+            var getPersonRequest = new GetPersonRequest
             {
-                Id = personId,
-                CreatedAt = DateTime.Now,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
                 IdCode = request.IdCode
             };
             
-            await _personRepository.Add(person);
-            await _socialEventPersonsRepository.Add(socialEventId, personId, request);
+            var person = await _personRepository.Get(getPersonRequest);
+            if (person == null)
+            {
+                person = new Person
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    IdCode = request.IdCode
+                };
+                
+                await _personRepository.Add(person);
+            }
+
+            var socialEventPerson = await _socialEventPersonsRepository.GetByPersonId(socialEventId, person.Id);
+            if (socialEventPerson != null) {
+                return OperationResult<bool>.Failure($"Person with id code {person.IdCode} is already registered to this event.", StatusCodes.Status409Conflict);
+            }
+            
+            await _socialEventPersonsRepository.Add(socialEventId, person.Id, request);
             
             await _transactionService.CommitTransactionAsync();
             return OperationResult<bool>.Success(true); 
@@ -47,6 +66,8 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         {
             await _transactionService.RollbackTransactionAsync();
 
+            // TODO: dont return such exception to frontend.
+            // TODO: check everywhere in code.
             return OperationResult<bool>.Failure($"{nameof(Add)} operation failed. {ex}");
         }
     }
