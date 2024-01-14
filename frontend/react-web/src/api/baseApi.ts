@@ -27,7 +27,7 @@ export type GetPersonsBySocialEventIdResponse = {
   idCode: string;
 };
 
-const apiUrl = 'https://localhost:8000';
+const apiUrl = 'http://localhost:8000';
 
 export const getData = <T>(response: AxiosResponse<T>) => response?.data;
 

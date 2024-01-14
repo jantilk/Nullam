@@ -26,7 +26,6 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddDbContext<NullamDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure CORS for development environment to allow all origins
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
@@ -57,16 +56,12 @@ using (var scope = app.Services.CreateScope())
     
     if (app.Environment.IsDevelopment()) {
         // Seed db
-        NullamDbContext.Initialize(dbContext);
+        DbUtility.InitializeDb(dbContext);
     }
 }
 
-// Swagger middleware conf
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
