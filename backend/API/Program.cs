@@ -14,6 +14,7 @@ builder.Services.AddScoped<ISocialEventsRepository, SocialEventsRepository>();
 builder.Services.AddScoped<ISocialEventCompaniesService, SocialEventCompaniesService>();
 builder.Services.AddScoped<ISocialEventCompaniesRepository, SocialEventCompaniesRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ISocialEventPersonsService, SocialEventPersonsService>();

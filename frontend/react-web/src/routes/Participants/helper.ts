@@ -11,11 +11,11 @@ export function generateParticipantLink(
   }
 
   if (participant.type === 'company') {
-    return `/social-events/${socialEventId}/participants/companies/${participant.id}`;
+    return `/social-events/${socialEventId}/participating-companies/${participant.id}`;
   }
 
   if (participant.type === 'person') {
-    return `/social-events/${socialEventId}/participants/persons/${participant.id}`;
+    return `/social-events/${socialEventId}/participating-persons/${participant.id}`;
   }
 
   return "";

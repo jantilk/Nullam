@@ -16,7 +16,7 @@ import {ReactNode, useState} from "react";
 import RemoveIcon from '/public/remove.svg?react'
 import {toast} from "sonner";
 import {format} from 'date-fns';
-import socialEventsApi, {SortingOption} from "../../../../api/socialEventsApi.ts";
+import socialEventsApi, {SortOption} from "../../../../api/socialEventsApi.ts";
 import constants from "../../../../utils/constants.ts";
 
 interface AppCardProps {
@@ -85,7 +85,7 @@ export default function SocialEventsSection() {
     queryFn: () => {
       const today = new Date();
       const filter = {StartDate: today};
-      const orderBy = SortingOption.DateAsc;
+      const orderBy = SortOption.DateAsc;
       return socialEventsApi.get(orderBy, filter);
     },
     select: (response) => {
@@ -101,7 +101,7 @@ export default function SocialEventsSection() {
     queryFn: () => {
       const today = new Date();
       const filter = {EndDate: today};
-      const orderBy = SortingOption.DateDesc;
+      const orderBy = SortOption.DateDesc;
       return socialEventsApi.get(orderBy, filter);
     },
     select: (response) => {

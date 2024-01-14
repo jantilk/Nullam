@@ -226,7 +226,8 @@ export default function Participants() {
                                 <td className={"table-col-min-width"}>
                                   <NavLink
                                     className={"nav nav-link py-0"}
-                                    to={`/social-events/${socialEvent?.id}/participants/${participant.participantType === 'company' ? 'companies' : participant.participantType + 's'}/${participant.id}`}
+                                    //TODO: thats ugly
+                                    to={`/social-events/${socialEvent?.id}/participating-${participant.participantType === 'company' ? 'companies' : 'persons'}/${participant.id}`}
                                   >
                                     VAATA
                                   </NavLink>

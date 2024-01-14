@@ -17,8 +17,8 @@ export default function App() {
           <Route path="/settings" element={<Settings/>}/>
           <Route path="/social-events" element={<AddSocialEvent/>}/>
           <Route path="/social-events/:eventId/participants" element={<Participants/>}/>
-          <Route path="/social-events/:eventId/participants/companies/:companyId" element={<UpdateCompanyParticipant/>}/>
-          <Route path="/social-events/:eventId/participants/persons/:personId" element={<UpdatePersonParticipant/>}/>
+          <Route path="/social-events/:eventId/participating-companies/:companyId" element={<UpdateCompanyParticipant/>}/>
+          <Route path="/social-events/:eventId/participating-persons/:personId" element={<UpdatePersonParticipant/>}/>
         </Routes>
       </RootLayout>
     </Router>

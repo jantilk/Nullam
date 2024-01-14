@@ -4,6 +4,7 @@ using Application.DTOs.Responses;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Services;
 
@@ -28,17 +29,31 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         {
             await _transactionService.BeginTransactionAsync();
 
-            var companyId = Guid.NewGuid();
-            var company = new Company
+            var getCompanyRequest = new GetCompanyRequest
             {
-                Id = companyId,
-                CreatedAt = DateTime.Now,
-                Name = request.Name,
                 RegisterCode = request.RegisterCode
             };
             
-            await _companyRepository.Add(company);
-            await _socialEventCompaniesRepository.Add(socialEventId, companyId, request);
+            var company = await _companyRepository.Get(getCompanyRequest);
+            if (company == null)
+            {
+                company = new Company
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    Name = request.Name,
+                    RegisterCode = request.RegisterCode
+                };
+                
+                await _companyRepository.Add(company);
+            }
+
+            var socialEventCompany = await _socialEventCompaniesRepository.GetSocialEventsByCompanyId(socialEventId, company.Id);
+            if (socialEventCompany != null) {
+                return OperationResult<bool>.Failure($"Company with register code {company.RegisterCode} is already registered to this event.", StatusCodes.Status409Conflict);
+            }
+            
+            await _socialEventCompaniesRepository.Add(socialEventId, company.Id, request);
             
             await _transactionService.CommitTransactionAsync();
             return OperationResult<bool>.Success(true); 
@@ -75,11 +90,11 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         }
     }
     
-    public async Task<OperationResult<GetSocialEventCompanyResponse>?> GetByCompanyId(Guid socialEventId, Guid companyId)
+    public async Task<OperationResult<GetSocialEventCompanyResponse>?> GetSocialEventsByCompanyId(Guid socialEventId, Guid companyId)
     {
         try
         {
-            var socialEventCompany = await _socialEventCompaniesRepository.GetByCompanyId(socialEventId, companyId);
+            var socialEventCompany = await _socialEventCompaniesRepository.GetSocialEventsByCompanyId(socialEventId, companyId);
             if (socialEventCompany == null)
             {
                 return null;
@@ -106,7 +121,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         }
         catch (Exception ex)
         {
-            return OperationResult<GetSocialEventCompanyResponse>.Failure($"{nameof(GetByCompanyId)} operation failed. {ex}");
+            return OperationResult<GetSocialEventCompanyResponse>.Failure($"{nameof(GetSocialEventsByCompanyId)} operation failed. {ex}");
         }
     }
 
@@ -121,7 +136,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
               return OperationResult<bool>.Failure("Social event company not found");
             }
             
-            var company = await _companyRepository.Get(companyId);
+            var company = await _companyRepository.GetById(companyId);
             if (company == null) {
                 return OperationResult<bool>.Failure("Company not found");
             }
@@ -157,7 +172,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
     {
         try
         {
-            var socialEventCompany = await _socialEventCompaniesRepository.GetByCompanyId(socialEventId, companyId);
+            var socialEventCompany = await _socialEventCompaniesRepository.GetSocialEventsByCompanyId(socialEventId, companyId);
 
             if (socialEventCompany == null)
             {

@@ -39,7 +39,7 @@ public class SocialEventCompaniesRepository : ISocialEventCompaniesRepository
         return result;
     }
 
-    public async Task<SocialEventCompany?> GetByCompanyId(Guid socialEventId, Guid companyId)
+    public async Task<SocialEventCompany?> GetSocialEventsByCompanyId(Guid socialEventId, Guid companyId)
     {
         var result = await _dbContext.SocialEventCompanies
             .Include(x => x.Company)

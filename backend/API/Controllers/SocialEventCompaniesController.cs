@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Route("api/v1/social-events/{socialEventId:guid}/participants/companies")]
+[Route("api/v1/social-events/{socialEventId:guid}/participating-companies")]
 public class SocialEventCompaniesController : NullamControllerBase
 {
     private readonly ISocialEventCompaniesService _socialEventCompaniesService;
@@ -21,15 +21,15 @@ public class SocialEventCompaniesController : NullamControllerBase
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetBySocialEventId([FromRoute] Guid socialEventId)
+    public async Task<IActionResult> GetSocialEventCompaniesBySocialEventId([FromRoute] Guid socialEventId)
     {
         return HandleOperationResult(await _socialEventCompaniesService.GetBySocialEventId(socialEventId));
     }
 
     [HttpGet("{companyId}")]
-    public async Task<IActionResult> GetByCompanyId([FromRoute] Guid socialEventId, [FromRoute] Guid companyId)
+    public async Task<IActionResult> GetSocialEventsByCompanyId([FromRoute] Guid socialEventId, [FromRoute] Guid companyId)
     {
-        return HandleOperationResult(await _socialEventCompaniesService.GetByCompanyId(socialEventId, companyId));
+        return HandleOperationResult(await _socialEventCompaniesService.GetSocialEventsByCompanyId(socialEventId, companyId));
     }
 
     [HttpPut("{companyId:guid}")]

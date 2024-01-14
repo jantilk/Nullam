@@ -3,7 +3,7 @@ using Domain.Enums;
 
 namespace Application.DTOs.Responses;
 
-public class GetSocialEventPersonResponse
+public class GetSocialEventsByPersonIdResponse
 {
     public required Guid SocialEventId { get; set; }
     public required Guid CompanyId { get; set; }

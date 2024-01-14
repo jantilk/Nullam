@@ -1,4 +1,4 @@
-import {Button, Col, Form, Row, Stack} from "react-bootstrap";
+import {Button, Col, Form, ListGroup, Row, Stack} from "react-bootstrap";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
 import {InvalidateQueryFilters, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
@@ -6,16 +6,19 @@ import {toast} from "sonner";
 import {SocialEvent} from "../../../../../../types/SocialEvent.ts";
 import queryKeys from "../../../../../../api/queryKeys.ts";
 import socialEventCompaniesApi, {AddSocialEventCompanyRequest} from "../../../../../../api/socialEventCompaniesApi.ts";
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, useCallback, useEffect, useState} from "react";
 import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../../../../api/resourceApi.ts";
 import constants from "../../../../../../utils/constants.ts";
+import GetCompaniesResponse from "../../../../../../types/GetCompaniesResponse.ts";
+import {debounce} from "lodash";
+import companiesApi from "../../../../../../api/companiesApi.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
 }
 
 export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
-  const {control, handleSubmit, reset} = useForm<AddSocialEventCompanyRequest>();
+  const {control, handleSubmit, reset, setValue} = useForm<AddSocialEventCompanyRequest>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -57,6 +60,43 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
     }
   });
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<GetCompaniesResponse[]>([]);
+
+
+  const handleSelectCompany = (company: GetCompaniesResponse) => {
+    reset({
+      Name: company.name,
+      RegisterCode: company.registerCode
+    });
+    setValue('PaymentTypeId', "");
+    setSearchResults([]);
+  }
+
+  const handleSearch = async (searchTerm: string) => {
+    try {
+      const response = await companiesApi.get({SearchTerm: searchTerm});
+      if (response.success && response.data) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        toast.error('No results found');
+      }
+    } catch (error) {
+      toast.error('Error fetching search results');
+    }
+  };
+
+  const debounceSearch = useCallback(debounce(handleSearch, 300), []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      debounceSearch(searchTerm);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, debounceSearch]);
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack gap={4} className={"mt-3 mb-5"}>
@@ -76,8 +116,41 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               }}
               render={({field, fieldState}) => (
                 <>
-                  <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                  <Form.Control
+                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                    type="text" {...field}
+                    autoComplete="off"
+                    {...field}
+                    onBlur={() => {
+                      setTimeout(() => {
+                        setSearchResults([]);
+                      }, 200)
+                    }}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      setSearchTerm(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setSearchResults([]);
+                      return;
+                    }}
+                  />
                   {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
+                  <ListGroup className="search-results-list">
+                    {searchResults.slice(0, 5).map((result) => (
+                      <ListGroup.Item
+                        key={result.id}
+                        action
+                        onClick={() => handleSelectCompany(result)}
+                        className="search-result-item"
+                      >
+                        <div className={"d-flex justify-content-between"}>
+                          <span>{result.name}</span>
+                          <span>{result.registerCode}</span>
+                        </div>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
                 </>
               )}
             />

@@ -28,17 +28,18 @@ public class SocialEventPersonsRepository : ISocialEventPersonsRepository
         await _dbContext.SocialEventPersons.AddAsync(socialEventPerson);
     }
 
-    public async Task<List<SocialEventPerson>> GetBySocialEventId(Guid socialEventId)
+    public async Task<List<SocialEventPerson>> GetSocialEventPersonsBySocialEventId(Guid socialEventId)
     {
         var result = await _dbContext.SocialEventPersons
             .Include(x => x.Person)
+            .Include(x => x.PaymentType)
             .Where(x => x.SocialEventId == socialEventId)
             .ToListAsync();
 
         return result;
     }
 
-    public async Task<SocialEventPerson?> GetByPersonId(Guid socialEventId, Guid personId)
+    public async Task<SocialEventPerson?> GetSocialEventsByPersonId(Guid socialEventId, Guid personId)
     {
         var result = await _dbContext.SocialEventPersons
             .Include(x => x.Person)

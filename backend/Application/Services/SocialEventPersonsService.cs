@@ -52,7 +52,7 @@ public class SocialEventPersonsService : ISocialEventPersonsService
                 await _personRepository.Add(person);
             }
 
-            var socialEventPerson = await _socialEventPersonsRepository.GetByPersonId(socialEventId, person.Id);
+            var socialEventPerson = await _socialEventPersonsRepository.GetSocialEventsByPersonId(socialEventId, person.Id);
             if (socialEventPerson != null) {
                 return OperationResult<bool>.Failure($"Person with id code {person.IdCode} is already registered to this event.", StatusCodes.Status409Conflict);
             }
@@ -72,11 +72,11 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         }
     }
 
-    public async Task<OperationResult<List<GetPersonsBySocialEventIdResponse>>> GetBySocialEventId(Guid socialEventId)
+    public async Task<OperationResult<List<GetPersonsBySocialEventIdResponse>>> GetSocialEventPersonsBySocialEventId(Guid socialEventId)
     {
         try
         {
-            var socialEventPersons = await _socialEventPersonsRepository.GetBySocialEventId(socialEventId);
+            var socialEventPersons = await _socialEventPersonsRepository.GetSocialEventPersonsBySocialEventId(socialEventId);
             
             var response = socialEventPersons
                 .Select(x => new GetPersonsBySocialEventIdResponse
@@ -95,21 +95,21 @@ public class SocialEventPersonsService : ISocialEventPersonsService
         }
         catch (Exception ex)
         {
-            return OperationResult<List<GetPersonsBySocialEventIdResponse>>.Failure($"{nameof(GetBySocialEventId)} operation failed. {ex}");
+            return OperationResult<List<GetPersonsBySocialEventIdResponse>>.Failure($"{nameof(GetSocialEventPersonsBySocialEventId)} operation failed. {ex}");
         }
     }
 
-    public async Task<OperationResult<GetSocialEventPersonResponse>?> GetByPersonId(Guid socialEventId, Guid personId)
+    public async Task<OperationResult<GetSocialEventsByPersonIdResponse>?> GetSocialEventsByPersonId(Guid socialEventId, Guid personId)
     {
         try
         {
-            var socialEventPerson = await _socialEventPersonsRepository.GetByPersonId(socialEventId, personId);
+            var socialEventPerson = await _socialEventPersonsRepository.GetSocialEventsByPersonId(socialEventId, personId);
             if (socialEventPerson == null)
             {
                 return null;
             }
 
-            var response = new GetSocialEventPersonResponse
+            var response = new GetSocialEventsByPersonIdResponse
             {
                 SocialEventId = socialEventPerson.SocialEventId,
                 CompanyId = socialEventPerson.PersonId,
@@ -126,11 +126,11 @@ public class SocialEventPersonsService : ISocialEventPersonsService
                 },
             };
             
-            return OperationResult<GetSocialEventPersonResponse>.Success(response);
+            return OperationResult<GetSocialEventsByPersonIdResponse>.Success(response);
         }
         catch (Exception ex)
         {
-            return OperationResult<GetSocialEventPersonResponse>.Failure($"{nameof(GetByPersonId)} operation failed. {ex}");
+            return OperationResult<GetSocialEventsByPersonIdResponse>.Failure($"{nameof(GetSocialEventsByPersonId)} operation failed. {ex}");
         }
     }
 
@@ -181,7 +181,7 @@ public class SocialEventPersonsService : ISocialEventPersonsService
     {
         try
         {
-            var socialEventPerson = await _socialEventPersonsRepository.GetByPersonId(socialEventId, personId);
+            var socialEventPerson = await _socialEventPersonsRepository.GetSocialEventsByPersonId(socialEventId, personId);
 
             if (socialEventPerson == null)
             {

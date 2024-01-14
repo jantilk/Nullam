@@ -12,17 +12,10 @@ import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../..
 import personsApi from "../../../../../../api/personsApi.ts";
 import {debounce} from "lodash";
 import constants from "../../../../../../utils/constants.ts";
+import GetPersonsResponse from "../../../../../../types/GetPersonsResponse.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
-}
-
-export interface SearchResult {
-  id: string;
-  createdAt: Date;
-  firstName: string;
-  lastName: string;
-  idCode: string;
 }
 
 export default function AddPersonParticipants({socialEvent}: ComponentProps) {
@@ -38,7 +31,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<GetPersonsResponse[]>([]);
 
   const mutation = useMutation({
     mutationFn: ({socialEventId, formData}: { socialEventId: string, formData: AddSocialEventPersonRequest }) => {
@@ -106,12 +99,11 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
     }
   }, [searchTerm, debounceSearch]);
 
-  const handleSelectPerson = (person: SearchResult) => {
+  const handleSelectPerson = (person: GetPersonsResponse) => {
     reset({
       FirstName: person.firstName,
       LastName: person.lastName,
       IdCode: person.idCode,
-      // ... other fields if needed
     });
     setValue('PaymentTypeId', "");
     setSearchResults([]);

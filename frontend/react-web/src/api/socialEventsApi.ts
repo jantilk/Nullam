@@ -11,7 +11,7 @@ export interface FilterDto {
   EndDate?: Date;
 }
 
-export enum SortingOption {
+export enum SortOption {
   DateAsc = "DateAsc",
   DateDesc = "DateDesc"
 }
@@ -21,7 +21,7 @@ const socialEventsApi = {
     baseApi
       .post<Response<boolean>>(`${baseUrl}`, formData)
       .then(getData),
-  get: async (orderBy: SortingOption, filter: FilterDto) => {
+  get: async (orderBy: SortOption, filter: FilterDto) => {
     const queryParams = new URLSearchParams();
 
     if (orderBy) {
@@ -49,7 +49,7 @@ const socialEventsApi = {
       .then(getData),
   update: (socialEventId: string, personId: string, formData: UpdateSocialEventPersonRequest) =>
     baseApi
-      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/persons/${personId}`, formData)
+      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-persons/${personId}`, formData)
       .then(getData),
   delete: async (socialEventId: string) =>
     baseApi

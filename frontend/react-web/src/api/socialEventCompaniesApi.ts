@@ -44,23 +44,23 @@ export type UpdateSocialEventCompanyRequest = {
 const socialEventCompaniesApi = {
   add: (socialEventId: string, formData: AddSocialEventCompanyRequest) =>
     baseApi
-      .post<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/companies`, formData)
+      .post<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-companies`, formData)
       .then(getData),
   getBySocialEventId: (socialEventId: string) =>
     baseApi
-      .get<Response<Array<GetCompaniesBySocialEventIdResponse>>>(`${baseUrl}/${socialEventId}/participants/companies`)
+      .get<Response<Array<GetCompaniesBySocialEventIdResponse>>>(`${baseUrl}/${socialEventId}/participating-companies`)
       .then(getData),
   getByCompanyId: (socialEventId: string, companyId: string) =>
     baseApi
-      .get<Response<GetSocialEventCompanyResponse>>(`${baseUrl}/${socialEventId}/participants/companies/${companyId}`)
+      .get<Response<GetSocialEventCompanyResponse>>(`${baseUrl}/${socialEventId}/participating-companies/${companyId}`)
       .then(getData),
   update: (socialEventId: string, companyId: string, formData: UpdateSocialEventCompanyRequest) =>
     baseApi
-      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/companies/${companyId}`, formData)
+      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-companies/${companyId}`, formData)
       .then(getData),
   delete: (socialEventId: string, companyId: string) =>
     baseApi
-      .delete<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/companies/${companyId}`)
+      .delete<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-companies/${companyId}`)
       .then(getData)
 }
 

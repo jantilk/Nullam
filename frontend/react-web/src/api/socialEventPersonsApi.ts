@@ -39,23 +39,23 @@ export type UpdateSocialEventPersonRequest = {
 const socialEventPersonsApi = {
   add: (socialEventId: string, formData: AddSocialEventPersonRequest) =>
     baseApi
-      .post<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/persons`, formData)
+      .post<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-persons`, formData)
       .then(getData),
   getBySocialEventId: (socialEventId: string) =>
     baseApi
-      .get<Response<Array<GetPersonsBySocialEventIdResponse>>>(`${baseUrl}/${socialEventId}/participants/persons`)
+      .get<Response<Array<GetPersonsBySocialEventIdResponse>>>(`${baseUrl}/${socialEventId}/participating-persons`)
       .then(getData),
   getByPersonId: (socialEventId: string, personId: string) =>
     baseApi
-      .get<Response<GetSocialEventPersonResponse>>(`${baseUrl}/${socialEventId}/participants/persons/${personId}`)
+      .get<Response<GetSocialEventPersonResponse>>(`${baseUrl}/${socialEventId}/participating-persons/${personId}`)
       .then(getData),
   update: (socialEventId: string, personId: string, formData: UpdateSocialEventPersonRequest) =>
     baseApi
-      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/persons/${personId}`, formData)
+      .put<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-persons/${personId}`, formData)
       .then(getData),
   delete: (socialEventId: string, personId: string) =>
     baseApi
-      .delete<Response<boolean>>(`${baseUrl}/${socialEventId}/participants/persons/${personId}`)
+      .delete<Response<boolean>>(`${baseUrl}/${socialEventId}/participating-persons/${personId}`)
       .then(getData)
 }
 
