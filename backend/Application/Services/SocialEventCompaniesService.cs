@@ -29,12 +29,7 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
         {
             await _transactionService.BeginTransactionAsync();
 
-            var getCompanyRequest = new GetCompanyRequest
-            {
-                RegisterCode = request.RegisterCode
-            };
-            
-            var company = await _companyRepository.Get(getCompanyRequest);
+            var company = await _companyRepository.GetByRegisterCode(request.RegisterCode);
             if (company == null)
             {
                 company = new Company
@@ -177,10 +172,6 @@ public class SocialEventCompaniesService : ISocialEventCompaniesService
             if (socialEventCompany == null)
             {
                 return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Social event company not found");
-            }
-            
-            if (socialEventCompany.SocialEvent.Date < DateTime.UtcNow) {
-                return OperationResult<bool>.Failure($"{nameof(Delete)} operation failed. Cannot delete company from past event.");
             }
             
             var result = await _socialEventCompaniesRepository.Delete(socialEventCompany);

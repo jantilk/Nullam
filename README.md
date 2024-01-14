@@ -1,11 +1,6 @@
 ## Setup with Docker
-in repo root directory where docker-compose.yml file is
+in Nullam/ directory where docker-compose.yml file is, run:
 ```bash
 docker-compose up --build -d 
 ```
-## Setup without Docker
-in Nullam/backend directory run
-```bash
-dotnet ef database update --project Persistence --startup-project API
-```
-to be continued...
+<br/>
