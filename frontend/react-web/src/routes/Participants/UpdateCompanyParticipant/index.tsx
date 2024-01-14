@@ -8,9 +8,12 @@ import queryKeys from "../../../api/queryKeys.ts";
 import socialEventCompaniesApi, {UpdateSocialEventCompanyRequest} from "../../../api/socialEventCompaniesApi.ts";
 import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../api/resourceApi.ts";
 import constants from "../../../utils/constants.ts";
+import {CompanyFormProps} from "../components/AddParticipants/components/AddCompanyParticipant";
+import {parseInt} from "lodash";
+
 
 export default function UpdateCompanyParticipant() {
-  const {control, handleSubmit, reset} = useForm<UpdateSocialEventCompanyRequest>();
+  const {control, handleSubmit, reset} = useForm<CompanyFormProps>();
   const navigate = useNavigate();
   const {eventId, companyId} = useParams();
   const queryClient = useQueryClient();
@@ -35,8 +38,8 @@ export default function UpdateCompanyParticipant() {
     if (companyData && !isLoading) {
       reset({
         Name: companyData.company.name,
-        RegisterCode: companyData.company.registerCode,
-        NumberOfParticipants: companyData.numberOfParticipants,
+        RegisterCode: companyData.company.registerCode.toString(),
+        NumberOfParticipants: companyData.numberOfParticipants.toString(),
         PaymentTypeId: companyData.paymentType.id,
         AdditionalInfo: companyData.additionalInfo
       });
@@ -57,13 +60,28 @@ export default function UpdateCompanyParticipant() {
     }
   })
 
-  const onSubmit = (formData: UpdateSocialEventCompanyRequest) => {
+  const onSubmit = (formData: CompanyFormProps) => {
     if (!eventId || !companyId) {
       toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
       return;
     }
 
-    mutation.mutate({eventId, companyId, formData});
+    if (!formData.RegisterCode || !formData.NumberOfParticipants) {
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
+      return;
+    }
+
+    mutation.mutate({
+      eventId,
+      companyId,
+      formData: {
+        Name: formData.Name,
+        RegisterCode: parseInt(formData.RegisterCode),
+        NumberOfParticipants: parseInt(formData.NumberOfParticipants),
+        PaymentTypeId: formData.PaymentTypeId,
+        AdditionalInfo: formData.AdditionalInfo
+      }
+    });
   }
 
   const [charCount, setCharCount] = useState(0);
@@ -101,7 +119,13 @@ export default function UpdateCompanyParticipant() {
                         name="Name"
                         control={control}
                         defaultValue=""
-                        rules={{required: "kohustuslik"}}
+                        rules={{
+                          required: "kohustuslik",
+                          maxLength: {
+                            value: 50,
+                            message: "Kuni 50 tähemärki"
+                          },
+                        }}
                         render={({field, fieldState}) => (
                           <>
                             <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
@@ -117,7 +141,7 @@ export default function UpdateCompanyParticipant() {
                       <Controller
                         name="RegisterCode"
                         control={control}
-                        defaultValue={0}
+                        defaultValue={""}
                         rules={{
                           required: "kohustuslik",
                           minLength: {
@@ -135,7 +159,17 @@ export default function UpdateCompanyParticipant() {
                         }}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                            <Form.Control
+                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                              type="string"
+                              {...field}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '' || /^[0-9]+$/.test(value)) {
+                                  field.onChange(value);
+                                }
+                              }}
+                            />
                             {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}
@@ -148,7 +182,7 @@ export default function UpdateCompanyParticipant() {
                       <Controller
                         name="NumberOfParticipants"
                         control={control}
-                        defaultValue={0}
+                        defaultValue={""}
                         rules={{
                           required: "kohustuslik",
                           min: {
@@ -162,7 +196,17 @@ export default function UpdateCompanyParticipant() {
                         }}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control type="number" {...field} className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}/>
+                            <Form.Control
+                              type="string"
+                              {...field}
+                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '' || /^[0-9]+$/.test(value)) {
+                                  field.onChange(value);
+                                }
+                              }}
+                            />
                             {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}

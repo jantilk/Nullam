@@ -41,7 +41,11 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
       await queryClient.invalidateQueries([queryKeys.PERSONS_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
       toast.success('Isiku lisamine õnnestus.');
       setSearchResults([])
-      reset();
+      reset({
+        FirstName: "",
+        LastName: "",
+        IdCode: "",
+      });
     },
     onError: () => {
       toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);

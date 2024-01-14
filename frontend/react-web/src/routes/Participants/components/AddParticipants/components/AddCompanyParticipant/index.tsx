@@ -10,15 +10,29 @@ import {ChangeEvent, useCallback, useEffect, useState} from "react";
 import resourceApi, {GetResourceByTypeResponse, resourceTypes} from "../../../../../../api/resourceApi.ts";
 import constants from "../../../../../../utils/constants.ts";
 import GetCompaniesResponse from "../../../../../../types/GetCompaniesResponse.ts";
-import {debounce} from "lodash";
+import {debounce, parseInt} from "lodash";
 import companiesApi from "../../../../../../api/companiesApi.ts";
 
 interface ComponentProps {
   socialEvent?: SocialEvent | null;
 }
 
+export interface CompanyFormProps {
+  Name: string;
+  RegisterCode: string;
+  NumberOfParticipants: string;
+  PaymentTypeId: string;
+  AdditionalInfo?: string;
+}
+
 export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
-  const {control, handleSubmit, reset, setValue} = useForm<AddSocialEventCompanyRequest>();
+  const {control, handleSubmit, reset, setValue} = useForm<CompanyFormProps>({
+    defaultValues: {
+      Name: "",
+      RegisterCode: "",
+      NumberOfParticipants: ""
+    }
+  });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -29,20 +43,67 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
     onSuccess: async () => {
       await queryClient.invalidateQueries([queryKeys.COMPANIES_BY_SOCIAL_EVENT_ID] as InvalidateQueryFilters);
       toast.success('Ettevõtte lisamine õnnestus!');
-      reset();
+      setSearchResults([])
+      reset({
+        Name: "",
+        RegisterCode: "",
+        NumberOfParticipants: ""
+      });
+      setValue('PaymentTypeId', "");
     },
     onError: () => {
       toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
     }
   })
 
-  const onSubmit = async (formData: AddSocialEventCompanyRequest) => {
+  const {data: companies} = useQuery({
+    queryKey: [queryKeys.COMPANIES_BY_SOCIAL_EVENT_ID, socialEvent?.id],
+    queryFn: () => {
+      const id = socialEvent?.id;
+      if (typeof id === 'string') {
+        return socialEventCompaniesApi.getBySocialEventId(id);
+      } else {
+        throw new Error("Social event ID is undefined");
+      }
+    },
+    select: (response) => {
+      if (response) {
+        return response.data;
+      }
+      return null;
+    },
+    enabled: !!socialEvent?.id,
+    refetchOnMount: "always",
+    staleTime: 0
+  });
+
+  const onSubmit = async (formData: CompanyFormProps) => {
     if (!socialEvent?.id) {
-      toast.error('Social event ID is missing!');
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
       return;
     }
 
-    mutation.mutate({socialEventId: socialEvent.id, formData});
+    if (!formData.RegisterCode || !formData.NumberOfParticipants) {
+      toast.error(constants.ERROR_TEXT.SOMETHING_WENT_WRONG);
+      return;
+    }
+
+    if (companies?.some(x => x.registerCode === parseInt(formData.RegisterCode))) {
+      toast.error('Selle registrikoodiga ettevõte on üritusele juba registreeritud.');
+      return;
+    }
+
+
+    mutation.mutate({
+      socialEventId: socialEvent.id,
+      formData: {
+        Name: formData.Name,
+        RegisterCode: parseInt(formData.RegisterCode),
+        NumberOfParticipants: parseInt(formData.NumberOfParticipants),
+        PaymentTypeId: formData.PaymentTypeId,
+        AdditionalInfo: formData.AdditionalInfo
+      }
+    });
   }
 
   const [charCount, setCharCount] = useState(0);
@@ -67,7 +128,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
   const handleSelectCompany = (company: GetCompaniesResponse) => {
     reset({
       Name: company.name,
-      RegisterCode: company.registerCode
+      RegisterCode: company.registerCode.toString()
     });
     setValue('PaymentTypeId', "");
     setSearchResults([]);
@@ -180,7 +241,17 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               }}
               render={({field, fieldState}) => (
                 <>
-                  <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="number" {...field}/>
+                  <Form.Control
+                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                    type="string"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^[0-9]+$/.test(value)) {
+                        field.onChange(value);
+                      }
+                    }}
+                  />
                   {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
@@ -193,7 +264,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
             <Controller
               name="NumberOfParticipants"
               control={control}
-              defaultValue={undefined}
+              defaultValue={""}
               rules={{
                 required: "kohustuslik",
                 min: {
@@ -207,7 +278,17 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               }}
               render={({field, fieldState}) => (
                 <>
-                  <Form.Control type="number" {...field} className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}/>
+                  <Form.Control
+                    type="string"
+                    {...field}
+                    className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^[0-9]+$/.test(value)) {
+                        field.onChange(value);
+                      }
+                    }}
+                  />
                   {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                 </>
               )}
@@ -224,12 +305,16 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
               render={({field, fieldState}) => (
                 <>
                   <Form.Control as="select" {...field} className={`form-control form-select ${fieldState.error ? 'is-invalid' : ''}`}>
-                    <option/>
-                    {paymentTypes && paymentTypes.map((paymentType: GetResourceByTypeResponse) => (
-                      <option key={paymentType.id} value={paymentType.id}>{paymentType.text}</option>
-                    ))}
+                    <option value=""/>
+                    {paymentTypes && paymentTypes.map((paymentType: GetResourceByTypeResponse) => {
+                      return (
+                        <option key={paymentType.id} value={paymentType.id}>
+                          {paymentType.text}
+                        </option>
+                      )
+                    })}
                   </Form.Control>
-                  {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
+                  {fieldState.error && (<div className="invalid-feedback">{fieldState.error.message}</div>)}
                 </>
               )}
             />
