@@ -42,7 +42,7 @@ Requirements:
 - Node 18.17.1 or higher
 - yarn 1.22.21 or higher
 
-Open solution in ```Nullam/backend/Nullam.sln``` and run app from IDE.  
+Open solution in ```Nullam/backend/Nullam.sln``` and run backend API from IDE.  
 
 Or in ```Nullam/backend/API``` run:
 ```bash
