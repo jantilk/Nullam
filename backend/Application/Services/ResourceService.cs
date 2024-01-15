@@ -61,7 +61,6 @@ public class ResourceService : IResourceService
         }
         catch (Exception ex)
         {
-            //TODO: remove all log stuff if not able to implement
             return OperationResult<List<GetResourcesByTypeResponse>>.FailureWithLog($"Get operation failed. {ex.Message}");
         }
     }

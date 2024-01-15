@@ -18,6 +18,7 @@ Requirements:
 - Docker Engine 19.03.0 or higher
 - Docker Compose file format 3.8 or higher
 
+Make sure docker engine is running.
 
 In ```Nullam/``` directory where ```docker-compose.yml``` file is, run:
 ```bash
