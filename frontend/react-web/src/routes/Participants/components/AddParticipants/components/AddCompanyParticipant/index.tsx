@@ -181,6 +181,7 @@ export default function AddCompanyParticipant({socialEvent}: ComponentProps) {
                     className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
                     type="text" {...field}
                     autoComplete="off"
+                    placeholder={"Otsi..."}
                     {...field}
                     onBlur={() => {
                       setTimeout(() => {

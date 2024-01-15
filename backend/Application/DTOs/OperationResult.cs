@@ -4,7 +4,6 @@ namespace Application.DTOs;
 
 public class OperationResult<T>
 {
-    // TODO: check all getters and setters
     public bool IsSuccess { get; init; }
     public T? Value { get; init; }
     public string? Error { get; init; }
@@ -14,10 +13,9 @@ public class OperationResult<T>
     public static OperationResult<T> Failure(string error, int statusCode = StatusCodes.Status400BadRequest) 
         => new() { Error = error, StatusCode = statusCode };
     
-    // TODO
     public static OperationResult<T> FailureWithLog(string error)
     {
-        // NUllamLogger.LogError(error);
+        // TODO save logs to db
 
         return new OperationResult<T> {Error = error};
     }

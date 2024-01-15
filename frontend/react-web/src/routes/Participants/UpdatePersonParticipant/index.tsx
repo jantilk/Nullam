@@ -172,7 +172,14 @@ export default function UpdatePersonParticipant() {
                           <>
                             <Form.Control
                               className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
-                              type="text" {...field}
+                              type="text"
+                              {...field}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '' || /^[0-9]+$/.test(value)) {
+                                  field.onChange(value);
+                                }
+                              }}
                             />
                             {fieldState.error && (
                               <div className="invalid-feedback"> {/* Use div for error message */}

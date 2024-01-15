@@ -10,7 +10,7 @@ services:
     depends_on:
       - db-server
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Server=db-server,1433;Database=nullam;User Id=sa;Password=Passw0rd1;TrustServerCertificate=True;
     networks:
       - internal

@@ -110,7 +110,7 @@ export default function Settings() {
                     <td className={"table-col-min-width"}>
                       <Button
                         type={"button"}
-                        className={"btn btn-link py-0 d-flex"}
+                        className={"btn btn-link py-0 custom-delete-button"}
                         onClick={() => onDeleteClick(paymentType.id)}
                       >
                         KUSTUTA

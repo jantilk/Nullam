@@ -50,13 +50,22 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<NullamDbContext>();
-    
-    // Apply migrations
-    dbContext.Database.Migrate();
-    
-    if (app.Environment.IsDevelopment()) {
-        // Seed db
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        logger.LogInformation("Applying database migrations...");
+        dbContext.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+
+        logger.LogInformation("Seeding database...");
         DbUtility.InitializeDb(dbContext);
+        logger.LogInformation("Database seeding completed.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, @"An error occurred while migrating or initializing the database.
+            The application will continue, but some functionalities might not work as expected.");
     }
 }
 
@@ -64,7 +73,6 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");
 app.UseAuthorization();
 app.MapControllers();

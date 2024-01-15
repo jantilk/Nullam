@@ -155,6 +155,7 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                       className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
                       type="text"
                       autoComplete="off"
+                      placeholder={"Otsi..."}
                       {...field}
                       onBlur={() => {
                         setTimeout(() => {
@@ -230,7 +231,17 @@ export default function AddPersonParticipants({socialEvent}: ComponentProps) {
                 }}
                 render={({field, fieldState}) => (
                   <>
-                    <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                    <Form.Control
+                      className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                      type="text"
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === '' || /^[0-9]+$/.test(value)) {
+                          field.onChange(value);
+                        }
+                      }}
+                    />
                     {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                   </>
                 )}

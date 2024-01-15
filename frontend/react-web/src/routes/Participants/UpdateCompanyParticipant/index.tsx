@@ -128,7 +128,11 @@ export default function UpdateCompanyParticipant() {
                         }}
                         render={({field, fieldState}) => (
                           <>
-                            <Form.Control className={`form-control ${fieldState.error ? 'is-invalid' : ''}`} type="text" {...field}/>
+                            <Form.Control
+                              className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
+                              type="text"
+                              {...field}
+                            />
                             {fieldState.error && <div className="invalid-feedback">{fieldState.error.message}</div>}
                           </>
                         )}

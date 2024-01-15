@@ -76,6 +76,4 @@ public class NullamDbContext : DbContext
         
         base.OnModelCreating(modelBuilder);
     }
-    
-    
 }

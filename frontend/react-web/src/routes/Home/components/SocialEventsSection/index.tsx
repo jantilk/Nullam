@@ -31,7 +31,7 @@ interface CurrentEvent {
 
 const SocialEventCard = ({children, title}: AppCardProps) => {
   return (
-    <Card className={"shadow-sm"} style={{height: '320px'}}>
+    <Card className={"shadow-sm"}>
       <CardHeader className="text-white bg-primary">
         <h2 className={"m-0"}>{title}</h2>
       </CardHeader>

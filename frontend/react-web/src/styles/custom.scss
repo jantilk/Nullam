@@ -64,10 +64,12 @@ body {
 
 .card {
   font-size: $font-size-base * .75;
+  height: 320px;
 
   &-header {
     display: flex;
-    height: $spacer * 4;
+    height: 64px;
+    min-height: 64px;
     align-items: center;
     justify-content: center;
   }
@@ -86,7 +88,7 @@ body {
 .navbar-nav {
   .nav-link {
     font-size: $font-size-base * .75;
-    height: $spacer * 5;
+    height: 5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,6 +111,9 @@ h1 {
   font-weight: $font-weight-light;
 }
 
+.custom-delete-button:hover {
+  color: $danger;
+}
 
 .btn {
   &.btn-secondary {

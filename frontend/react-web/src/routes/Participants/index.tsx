@@ -226,7 +226,7 @@ export default function Participants() {
                                 <td className={"table-col-min-width"}>
                                   <NavLink
                                     className={"nav nav-link py-0"}
-                                    //TODO: thats ugly
+                                    //TODO: thats ugly, fix paths
                                     to={`/social-events/${socialEvent?.id}/participating-${participant.participantType === 'company' ? 'companies' : 'persons'}/${participant.id}`}
                                   >
                                     VAATA
@@ -235,7 +235,7 @@ export default function Participants() {
                                 <td className={"table-col-min-width"}>
                                   <Button
                                     type={"button"}
-                                    className={"btn btn-link py-0 d-flex"}
+                                    className={"btn btn-link py-0 d-flex custom-delete-button"}
                                     onClick={() => openModal(participant.id, participant.primaryText, participant.participantType)}
                                   >
                                     KUSTUTA

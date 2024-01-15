@@ -4,25 +4,21 @@ FROM node:18 AS builder
 WORKDIR /react-web
 
 # Copy package.json and package-lock.json files
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
-# TODO: change to yarn everywhere ?
-RUN npm install --frozen-lockfile
+RUN yarn install --frozen-lockfile
 
 # Copy the rest of the code
 COPY . .
 
 # Build the project
-RUN npm run build
+RUN yarn build
 
 # Stage 2: Run the built app
 FROM node:18
 
 WORKDIR /react-web
-
-# Install serve to run the application
-RUN npm install -g serve
 
 # Copy the built code from the builder stage
 COPY --from=builder /react-web/dist ./dist
@@ -33,4 +29,4 @@ COPY public ./public
 EXPOSE 3000
 
 # Run the app
-CMD ["serve", "-s", "dist"]
+CMD ["npx", "serve", "-s", "dist"]
